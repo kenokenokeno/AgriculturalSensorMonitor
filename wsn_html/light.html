@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Agriculture Sensor Network: Light</title>
+    <link href="mystyle.css" rel="stylesheet" type="text/css">
+    <script language="javascript" type="text/javascript" src="./flotGraphing/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="./flotGraphing/jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="./flotGraphingjquery.flot.time.js"></script>
+    <script type="text/javascript">
+                    
+    $(function() { 
+        var newest_clock = 0
+        var options;
+        
+        // configure the options for different views
+        function set_option_recent(){
+            options = {
+                lines:  { show: true },
+                points: { show: true },
+                xaxis: { 
+                    mode: "time",
+                    min: newest_clock-600000,
+                    max: newest_clock
+                },
+            };
+        }
+        function set_option_today(){
+            options = {
+                lines:  { show: true },
+                xaxis: { 
+                    mode: "time",
+                    min: newest_clock-86400000,
+                    max: newest_clock
+                },
+            };
+        }
+        function set_option_all(){
+            options = {
+                lines:  { show: true },
+                xaxis: { mode: "time" },
+            };
+        }
+      
+        // set up the clicks
+        var current_option = "recent"
+        $("#recent").click(function () {
+            current_option = "recent"
+            updateGraphData(current_sensor_data);
+        });
+        $("#today").click(function () {
+            current_option = "today"
+            updateGraphData(current_sensor_data)              
+        });
+        $("#all").click(function () {
+            current_option = "all"
+            updateGraphData(current_sensor_data)
+        });
+        
+        //process get new data
+        $("#getdata").click(function () {
+            var mygetrequest = new XMLHttpRequest();
+            mygetrequest.open("GET", "http://localhost:8080/new_data", true);
+            mygetrequest.send();
+        });
+      
+        // perfrom an initial plot of the data
+        var current_sensor_data = [];
+        $.plot("#placeholder", current_sensor_data, options);
+      
+        // get new sensor data from the database
+        function getSensorData(){
+            var mygetrequest = new XMLHttpRequest();
+            mygetrequest.onreadystatechange=function(){
+                if (mygetrequest.readyState==4 && mygetrequest.status==200){
+                    var light_sensor_json = []
+                    json_me = JSON.parse(mygetrequest.responseText)
+                    for(i = 0; i < json_me.length; i++){
+                        json_me[i].light.label = "sensor_"+i
+                        light_sensor_json.push(json_me[i].light)
+                        light_clock = json_me[i].light.data[json_me[i].light.data.length-1][0]
+                        if(newest_clock < light_clock){
+                            newest_clock = light_clock
+                        }
+                    }
+                    updateGraphData(light_sensor_json)
+                    current_sensor_data = light_sensor_json
+                } 
+            }
+            mygetrequest.open("GET", "http://localhost:8080/sensor_data", true);
+            mygetrequest.send();
+        }
+      
+        // update the line graph with new data
+        function updateGraphData(light_data){
+            //console.log(light_data)
+            if(current_option == "today"){
+                set_option_today();
+            } else if (current_option == "all"){
+                set_option_all();
+            } else {
+                set_option_recent();
+            }
+            $.plot("#placeholder", light_data, options);
+        }
+      
+        // run once, then get new sensor data every 10 secs
+        getSensorData()
+        setInterval(getSensorData, 1000);
+    });
+    </script>
+    <body>
+        <!-- Site navigation menu -->
+        <ul class="navbar">
+            <li><a href="overview.html">Sensor Data Overview</a>
+            <li><a href="project-info.html">Project Info</a>
+            <li><a href="temperature.html">Temperature</a>
+            <li><a href="pressure.html">Pressure</a>
+            <li><a href="humidity.html">Humidity</a>
+            <li><a href="light.html">Light</a>
+            <li><a href="soil-moisture.html">Soil Moisture</a>
+            <li><a href="hardware-design.html">Hardware Design</a>
+            <li><a href="software-design.html">Software Design</a>
+        </ul>
+        
+        <!-- Main content -->
+        <h2>Light</h2>
+        
+        <div id="content">
+            <div class="demo-container">
+                <div id="placeholder" class="demo-placeholder" style="float:left; width:675px;"></div>
+                <p id="choices" style="float:right; width:135px;"></p>
+            </div>
+            <p>Graph Selection: <button id="recent">Recent Data</button>
+            <button id="today">Today's Data</button>
+            <button id="all">All Data</button></p>
+            <p>Get New Data: . .<button id="getdata">Get Data</button></p>
+            <p>The Light sensor utilizes a photo diode to measure the light intensity
+            on the service of the diode. Light, is an indication of sunlight and it can
+            be a predictor for the amount of expected evaportion</p>
+        </div>
+        
+    </body>
+</html>

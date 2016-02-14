@@ -1,0 +1,45 @@
+<html>
+    <head>
+        <title>Ajax POST HTTP Request</title>
+        <SCRIPT TYPE="text/javascript" LANGUAGE="JavaScript"> 
+        
+        var car = {type:"Fiat", model:"500", color:"white"};
+        
+        function ajaxpost(){
+            var mypostrequest=new XMLHttpRequest();
+            mypostrequest.onreadystatechange=function(){
+                if (mypostrequest.readyState==4){
+                    if (mypostrequest.status==200 || window.location.href.indexOf("http")==-1){
+                        document.getElementById("result").innerHTML = mypostrequest.responseText;
+                    }
+                    else{
+                        alert("An error has occured making the request");
+                    }
+                }
+            }
+            mypostrequest.open("POST", "http://localhost:8080/AjaxTest/Login", true);
+            mypostrequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            //mypostrequest.send("userId=hello"+"&password=newnnewnew");
+            mypostrequest.send(JSON.stringify(car));
+        }
+        
+            </SCRIPT>
+    </head>
+    <body>
+        
+        <form method="get" action="">
+            <table>
+                <tr>
+                    <p> Send Json Data Test </p>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td><input type="button" value="send" onClick="ajaxpost()" />
+                    </td>
+                </tr>
+            </table>
+        </form>
+        
+        <div id="result"></div>
+    </body>
+</html>

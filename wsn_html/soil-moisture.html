@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Agriculture Sensor Network: Soil Moisture</title>
+    <link href="mystyle.css" rel="stylesheet" type="text/css">
+    <script language="javascript" type="text/javascript" src="./flotGraphing/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="./flotGraphing/jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="./flotGraphingjquery.flot.time.js"></script>
+    <script type="text/javascript">
+                    
+    $(function() { 
+        var newest_clock = 0
+        var options;
+        var markings = [
+            { color: "#ccffcc", yaxis: { from: 440, to: 480 } },
+        ];
+        // configure the options for different views
+        function set_option_recent(){
+            options = {
+                lines:  { show: true },
+                points: { show: true },
+                grid: { markings: markings },
+                xaxis: { 
+                    mode: "time",
+                    min: newest_clock-600000,
+                    max: newest_clock
+                },
+            };
+        }
+        function set_option_today(){
+            options = {
+                lines:  { show: true },
+                grid: { markings: markings },
+                xaxis: { 
+                    mode: "time",
+                    min: newest_clock-86400000,
+                    max: newest_clock
+                },
+            };
+        }
+        function set_option_all(){
+            options = {
+                lines:  { show: true },
+                grid: { markings: markings },
+                xaxis: { mode: "time" },
+            };
+        }
+      
+        // set up the clicks
+        var current_option = "recent"
+        $("#recent").click(function () {
+            current_option = "recent"
+            updateGraphData(current_sensor_data);
+        });
+        $("#today").click(function () {
+            current_option = "today"
+            updateGraphData(current_sensor_data)              
+        });
+        $("#all").click(function () {
+            current_option = "all"
+            updateGraphData(current_sensor_data)
+        });
+            
+        //process get new data
+        $("#getdata").click(function () {
+            var mygetrequest = new XMLHttpRequest();
+            mygetrequest.open("GET", "http://localhost:8080/new_data", true);
+            mygetrequest.send();
+        });
+      
+      
+        // perfrom an initial plot of the data
+        var current_sensor_data = [];
+        $.plot("#placeholder", current_sensor_data, options);
+      
+        // get new sensor data from the database
+        function getSensorData(){
+            var mygetrequest = new XMLHttpRequest();
+            mygetrequest.onreadystatechange=function(){
+                if (mygetrequest.readyState==4 && mygetrequest.status==200){
+                    var moisture_sensor_json = []
+                    json_me = JSON.parse(mygetrequest.responseText)
+                    for(i = 0; i < json_me.length; i++){
+                        json_me[i].moisture.label = "sensor_"+i
+                        moisture_sensor_json.push(json_me[i].moisture)
+                        moisture_clock = json_me[i].moisture.data[json_me[i].moisture.data.length-1][0]
+                        if(newest_clock < moisture_clock){
+                            newest_clock = moisture_clock
+                        }
+                    }
+                    updateGraphData(moisture_sensor_json)
+                    current_sensor_data = moisture_sensor_json
+                } 
+            }
+            mygetrequest.open("GET", "http://localhost:8080/sensor_data", true);
+            mygetrequest.send();
+        }
+      
+        // update the line graph with new data
+        function updateGraphData(moisture_data){
+            //console.log(moisture_data)
+            if(current_option == "today"){
+                set_option_today();
+            } else if (current_option == "all"){
+                set_option_all();
+            } else {
+                set_option_recent();
+            }
+            $.plot("#placeholder", moisture_data, options);
+        }
+      
+        // run once, then get new sensor data every 10 secs
+        getSensorData()
+        setInterval(getSensorData, 1000);
+    });
+    </script>
+    <body>
+        <!-- Site navigation menu -->
+        <ul class="navbar">
+            <li><a href="overview.html">Sensor Data Overview</a>
+            <li><a href="project-info.html">Project Info</a>
+            <li><a href="temperature.html">Temperature</a>
+            <li><a href="pressure.html">Pressure</a>
+            <li><a href="humidity.html">Humidity</a>
+            <li><a href="light.html">Light</a>
+            <li><a href="soil-moisture.html">Soil Moisture</a>
+            <li><a href="hardware-design.html">Hardware Design</a>
+            <li><a href="software-design.html">Software Design</a>
+        </ul>
+        
+        <!-- Main content -->
+        <h2>Soil Moisture</h2>
+        
+        <div id="content">
+            <div class="demo-container">
+                <div id="placeholder" class="demo-placeholder" style="float:left; width:675px;"></div>
+                <p id="choices" style="float:right; width:135px;"></p>
+            </div>
+            <p>Graph Selection: <button id="recent">Recent Data</button>
+            <button id="today">Today's Data</button>
+            <button id="all">All Data</button></p>
+            <p>Get New Data: . .<button id="getdata">Get Data</button></p>
+            <p>The soil moisture content is found by measuring the conductivity of the soil. 
+            To do this, the soil sensor applies a voltage across two metal terminals that are 
+            embedded in the soil.  When the voltage is applied, a current is generated and it 
+            can be used to determine the resistance of the soil. The resistance is corellated 
+            with the moisture content of the soil. </p>
+        </div>
+        
+    </body>
+</html>

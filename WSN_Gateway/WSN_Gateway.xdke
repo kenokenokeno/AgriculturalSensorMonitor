@@ -1,0 +1,74 @@
+{
+  "project": {
+    "projectSettingsVersion": "2.0.0",
+    "initialAutoPluginCount": 0,
+    "currentBuildConfiguration": "Android",
+    "projectFiles": {},
+    "projectDirectories": {}
+  },
+  "iot-tab": {
+    "fileStatus": {
+      "README.md": {
+        "previousModTime": 1446699765000,
+        "modified": 1446699765000,
+        "seen": true,
+        "name": "README.md"
+      },
+      "WSN_Gateway.xdk": {
+        "previousModTime": 1447514401000,
+        "modified": 1447514401000,
+        "seen": true,
+        "name": "WSN_Gateway.xdk"
+      },
+      "WSN_Gateway.xdke": {
+        "previousModTime": 1455468567000,
+        "modified": 1455468567000,
+        "seen": true,
+        "name": "WSN_Gateway.xdke"
+      },
+      "icon.png": {
+        "previousModTime": 1446699765000,
+        "modified": 1446699765000,
+        "seen": true,
+        "name": "icon.png"
+      },
+      "main.js": {
+        "previousModTime": 1455395449000,
+        "modified": 1455395449000,
+        "seen": true,
+        "name": "main.js"
+      },
+      "package.json": {
+        "previousModTime": 1446699765000,
+        "modified": 1446699765000,
+        "seen": true,
+        "name": "package.json"
+      },
+      "client/index.css": {
+        "previousModTime": 1446532787000,
+        "modified": 1446532787000,
+        "seen": true,
+        "name": "client/index.css"
+      },
+      "client/index.html": {
+        "previousModTime": 1447630622000,
+        "modified": 1447630622000,
+        "seen": true,
+        "name": "client/index.html"
+      },
+      "client/index.js": {
+        "previousModTime": 1446532787000,
+        "modified": 1446532787000,
+        "seen": true,
+        "name": "client/index.js"
+      },
+      "xdk/project-info.json": {
+        "previousModTime": 1447514401000,
+        "modified": 1447514401000,
+        "seen": true,
+        "name": "xdk/project-info.json"
+      }
+    },
+    "boardFileStatus": {}
+  }
+}

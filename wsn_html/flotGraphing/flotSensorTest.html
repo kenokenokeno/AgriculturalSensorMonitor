@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Sensor Data: Graphs</title>
+	<link href="example.css" rel="stylesheet" type="text/css">
+	<script language="javascript" type="text/javascript" src="jquery.js"></script>
+	<script language="javascript" type="text/javascript" src="jquery.flot.js"></script>
+	<script type="text/javascript">
+    
+    $(function() {
+        // initialize the options
+        var options = {
+			lines:  { show: true },
+			points: { show: true }
+		};
+        
+        // perfrom an initial plot of the data
+        var sensor_data = [];
+		$.plot("#placeholder", sensor_data, options);
+        
+        // get new sensor data from the database
+        function getSensorData(){
+            var mygetrequest = new XMLHttpRequest();
+            mygetrequest.onreadystatechange=function(){
+                if (mygetrequest.readyState==4 && mygetrequest.status==200){
+                    updateGraphData(JSON.parse(mygetrequest.responseText))
+                } else {
+                    console.log("An error has occured making the request");
+                }
+            }
+            mygetrequest.open("GET", "http://localhost:8080/sensor_data", true);
+            mygetrequest.send();
+        }
+      
+        // update the line graph with new data
+        function updateGraphData(sensor_data){
+            console.log(sensor_data[0].temp)
+            $.plot("#placeholder", [ sensor_data[0].temp ], options);
+        }
+        
+        // try to get new sensor data every 10 secs
+        setInterval(getSensorData, 10000);
+	});
+
+	</script>
+    
+</head>
+<body>
+	<div id="header">
+		<h2>FLOT Testing</h2>
+	</div>
+    
+	<div id="content">
+		<div class="demo-container">
+			<div id="placeholder" class="demo-placeholder"></div>
+		</div>
+        <p>Hi: Testing Here</p>
+	</div>
+</body>
+</html>
+
+
+
