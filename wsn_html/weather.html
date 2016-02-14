@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+    <head>
+        <title>Agriculture Sensor Network: Weather</title>
+        <link rel="stylesheet" href="mystyle.css">
+    </head>
+    
+    <body>
+        <!-- Site navigation menu -->
+        <ul class="navbar">
+            <li><a href="project-info.html">Project Info</a>
+            <li><a href="weather.html">Weather</a>
+            <li><a href="temperature.html">Temperature</a>
+            <li><a href="pressure.html">Pressure</a>
+            <li><a href="humidity.html">Humidity</a>
+            <li><a href="light.html">Light</a>
+            <li><a href="soil-moisture.html">Soil Moisture</a>
+            <li><a href="hardware-design.html">Hardware Design</a>
+            <li><a href="software-design.html">Software Design</a>
+        </ul>
+        
+        <!-- Main content -->
+        <h2>Weather</h2>
+        <br>
+        <table class="table table-striped table-bordered">
+        <tbody>
+            <tr><td>Location</td><td id="location">Not Avaliable</td></tr>
+            <tr><td>Weather</td><td id="weather">Not Avaliable</td></tr>
+            <tr><td>Wind Speed(mph)    </td><td id="wind">Not Avaliable</td></tr>
+            <tr><td>Cloudiness(%)</td><td id="cloudiness">Not Avaliable</td></tr>
+            <tr><td>Temperature(C)<br></td><td id="temperature">Not Avaliable</td></tr>
+            <tr><td>Pressure(hpa)<br></td><td id="pressure">Not Avaliable</td></tr>
+            <tr><td>Humidity(%)</td><td id="humidity">Not Avaliable</td></tr>
+            <tr><td>Sunrise</td><td id="sunrise">Not Avaliable</td></tr>
+            <tr><td>Sunset</td><td id="sunset">Not Avaliable</td></tr>
+        </tbody>
+        </table>
+        
+        
+        <script>
+            // get weather data
+            function getWeatherData(){
+                var mygetrequest = new XMLHttpRequest();
+                mygetrequest.onreadystatechange=function(){
+                    if (mygetrequest.readyState==4 && mygetrequest.status==200){
+                        console.log(mygetrequest.responseText)
+                        // create a json struct from the response
+                        weather_json = JSON.parse(mygetrequest.responseText)
+                        console.log(weather_json.main)
+                        document.getElementById("location").innerHTML = weather_json.name
+                        document.getElementById("weather").innerHTML = weather_json.weather[0].description
+                        document.getElementById("wind").innerHTML = weather_json.wind.speed
+                        document.getElementById("cloudiness").innerHTML = weather_json.clouds.all
+                        document.getElementById("temperature").innerHTML = Math.round(100*(273-weather_json.main.temp))/100
+                        document.getElementById("pressure").innerHTML = weather_json.main.pressure
+                        document.getElementById("humidity").innerHTML = weather_json.main.humidity
+                        document.getElementById("sunrise").innerHTML = new Date(weather_json.sys.sunrise*1000)
+                        document.getElementById("sunset").innerHTML = new Date(weather_json.sys.sunset*1000)
+                    }
+                } 
+                mygetrequest.open("GET", "http://api.openweathermap.org/data/2.5/weather?id=5392171&appid=44db6a862fba0b067b1930da0d769e98", true);
+                mygetrequest.send();
+            }
+            // run once, then get new sensor data every 10 mins
+            getWeatherData()
+            setInterval(getWeatherData, 600000);
+        </script>
+        
+    </body>
+    
+
+
+    
+</html>

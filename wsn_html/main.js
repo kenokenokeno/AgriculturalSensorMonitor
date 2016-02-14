@@ -6,7 +6,7 @@ const PORT=8080;
 var edison_hostname = '192.168.1.145'
 
 // Include the html pages
-var overviewPage    = fs.readFileSync('overview.html');
+var weatherPage     = fs.readFileSync('weather.html');
 var cssPage         = fs.readFileSync('mystyle.css');
 var projInfoPage    = fs.readFileSync('project-info.html');
 var temperaturePage = fs.readFileSync('temperature.html');
@@ -86,8 +86,8 @@ getAllDatabases();
 function handleRequest(request, response){    
     if(request.method === "GET"){
         //console.log(request.url)
-        if (request.url.indexOf('overview') != -1) {
-            response.end(overviewPage);
+        if (request.url.indexOf('weather') != -1) {
+            response.end(weatherPage);
         } else if (request.url.indexOf('mystyle') != -1) {
             response.end(cssPage);
         } else if (request.url.indexOf('project-info') != -1) {
@@ -120,7 +120,7 @@ function handleRequest(request, response){
         } else if(request.url.indexOf('jquery.flot.time.js') != -1) {
             response.end(jqueryFlotTime);
         }else {
-            response.end(overviewPage);
+            response.end(projInfoPage);
         }
     } else if(request.method === "POST"){
         console.log("\nRECEIVED POST: ")
