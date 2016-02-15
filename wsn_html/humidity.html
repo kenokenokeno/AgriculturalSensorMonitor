@@ -60,7 +60,7 @@
         //process get new data
         $("#getdata").click(function () {
             var mygetrequest = new XMLHttpRequest();
-            mygetrequest.open("GET", "http://localhost:8080/new_data", true);
+            mygetrequest.open("GET", "http://localhost:8080/data_new", true);
             mygetrequest.send();
         });
       
@@ -87,7 +87,7 @@
                     current_sensor_data = humidity_sensor_json
                 } 
             }
-            mygetrequest.open("GET", "http://localhost:8080/sensor_data", true);
+            mygetrequest.open("GET", "http://localhost:8080/data_sensor", true);
             mygetrequest.send();
         }
       

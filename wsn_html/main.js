@@ -2,8 +2,14 @@
 var nano = require('nano')('http://keno:monkeydesupass@localhost:5984');
 var fs = require('fs');
 var http = require('http');
+
+// network configurations
 const PORT=8080;
 var edison_hostname = '192.168.1.145'
+
+// weather data and time
+var weather_time = 0
+var weather_data;
 
 // Include the html pages
 var weatherPage     = fs.readFileSync('weather.html');
@@ -86,7 +92,14 @@ getAllDatabases();
 function handleRequest(request, response){    
     if(request.method === "GET"){
         //console.log(request.url)
-        if (request.url.indexOf('weather') != -1) {
+        if(request.url.indexOf('data_sensor') != -1) {
+            response.end(JSON.stringify(sensor_data_array));
+        } else if(request.url.indexOf('data_new') != -1) {
+            getNewData()
+            response.end("OK");
+        } else if(request.url.indexOf('data_weather') != -1) {
+            getWeatherData(response)
+        } else if (request.url.indexOf('weather') != -1) {
             response.end(weatherPage);
         } else if (request.url.indexOf('mystyle') != -1) {
             response.end(cssPage);
@@ -106,11 +119,6 @@ function handleRequest(request, response){
             response.end(softwarePage);
         } else if (request.url.indexOf('hardware-design') != -1) {
             response.end(hardwarePage);
-        } else if(request.url.indexOf('sensor_data') != -1) {
-            response.end(JSON.stringify(sensor_data_array));
-        } else if(request.url.indexOf('new_data') != -1) {
-            getNewData()
-            response.end("OK");
         } else if(request.url.indexOf('example.css') != -1) {
             response.end(myStyleCSS);
         } else if(request.url.indexOf('jquery.js') != -1) {
@@ -305,3 +313,26 @@ function getNewData(){
     });
 }
 
+function getWeatherData(page_response){
+    var d = new Date();
+    var new_time = false
+    if(d.getTime() - weather_time >= 600000){
+        weather_time = d.getTime();
+        new_time = true
+        http.get("http://api.openweathermap.org/data/2.5/weather?id=5392171&appid=44db6a862fba0b067b1930da0d769e98", function(res) {
+            //console.log("statusCode: ", res.statusCode);
+            //console.log("headers: ", res.headers);
+            res.on('data', function(data) {
+                //console.log(JSON.parse(data))
+                weather_data = data
+                page_response.end(weather_data);
+                return
+            })            
+        }).on('error', function(e) {
+            console.error(e);
+        });
+    }
+    if(new_time == false){
+        page_response.end(weather_data);
+    }
+}
