@@ -18,20 +18,17 @@
             options = {
                 lines:  { show: true },
                 points: { show: true },
-                xaxis: { 
-                    mode: "time",
-                    min: newest_clock-600000,
-                    max: newest_clock
-                },
+                xaxis:  { mode: "time"},
             };
         }
         function set_option_today(){
+            var epoch_time = (new Date).getTime();
             options = {
                 lines:  { show: true },
                 xaxis: { 
                     mode: "time",
-                    min: newest_clock-86400000,
-                    max: newest_clock
+                    min: epoch_time-86400000,
+                    max: epoch_time
                 },
             };
         }
@@ -86,6 +83,8 @@
                         temp_clock = json_me[i].temp.data[json_me[i].temp.data.length-1][0]
                         if(newest_clock < temp_clock){
                             newest_clock = temp_clock
+                            document.getElementById("newest_time").innerHTML = 
+                                    "Latest Value:  " + new Date(newest_clock)
                         }
                     }
                     updateGraphData(temp_sensor_json)
@@ -104,6 +103,11 @@
             } else if (current_option == "all"){
                 set_option_all();
             } else {
+                for(i = 0; i < temp_data.length; i++){
+                    data_len = temp_data[0].data.length
+                    temp_data[i].data = temp_data[i].data.slice(data_len-10,data_len)
+                    console.log(temp_data[i].data)
+                }
                 set_option_recent();
             }
             $.plot("#placeholder", temp_data, options);
@@ -132,6 +136,7 @@
         <h2>Temperature</h2>
         
         <div id="content">
+            <center><t id="newest_time"></t></center>
             <div class="demo-container">
                 <div id="placeholder" class="demo-placeholder" style="float:left; width:675px;"></div>
                 <p id="choices" style="float:right; width:135px;"></p>

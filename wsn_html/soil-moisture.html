@@ -22,20 +22,18 @@
                 points: { show: true },
                 grid: { markings: markings },
                 xaxis: { 
-                    mode: "time",
-                    min: newest_clock-600000,
-                    max: newest_clock
+                    mode: "time"
                 },
             };
         }
         function set_option_today(){
+            var epoch_time = (new Date).getTime();
             options = {
                 lines:  { show: true },
-                grid: { markings: markings },
                 xaxis: { 
                     mode: "time",
-                    min: newest_clock-86400000,
-                    max: newest_clock
+                    min: epoch_time-86400000,
+                    max: epoch_time
                 },
             };
         }
@@ -87,6 +85,8 @@
                         moisture_clock = json_me[i].moisture.data[json_me[i].moisture.data.length-1][0]
                         if(newest_clock < moisture_clock){
                             newest_clock = moisture_clock
+                            document.getElementById("newest_time").innerHTML = 
+                                    "Latest Value:  " + new Date(newest_clock)
                         }
                     }
                     updateGraphData(moisture_sensor_json)
@@ -105,6 +105,11 @@
             } else if (current_option == "all"){
                 set_option_all();
             } else {
+                for(i = 0; i < moisture_data.length; i++){
+                    data_len = moisture_data[0].data.length
+                    moisture_data[i].data = moisture_data[i].data.slice(data_len-10,data_len)
+                    console.log(moisture_data[i].data)
+                }
                 set_option_recent();
             }
             $.plot("#placeholder", moisture_data, options);
@@ -133,6 +138,7 @@
         <h2>Soil Moisture</h2>
         
         <div id="content">
+            <center><t id="newest_time"></t></center>
             <div class="demo-container">
                 <div id="placeholder" class="demo-placeholder" style="float:left; width:675px;"></div>
                 <p id="choices" style="float:right; width:135px;"></p>

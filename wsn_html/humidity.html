@@ -19,19 +19,18 @@
                 lines:  { show: true },
                 points: { show: true },
                 xaxis: { 
-                    mode: "time",
-                    min: newest_clock-600000,
-                    max: newest_clock
+                    mode: "time"
                 },
             };
         }
         function set_option_today(){
+            var epoch_time = (new Date).getTime();
             options = {
                 lines:  { show: true },
                 xaxis: { 
                     mode: "time",
-                    min: newest_clock-86400000,
-                    max: newest_clock
+                    min: epoch_time-86400000,
+                    max: epoch_time
                 },
             };
         }
@@ -81,6 +80,8 @@
                         humidity_clock = json_me[i].humidity.data[json_me[i].humidity.data.length-1][0]
                         if(newest_clock < humidity_clock){
                             newest_clock = humidity_clock
+                            document.getElementById("newest_time").innerHTML = 
+                                    "Latest Value:  " + new Date(newest_clock)
                         }
                     }
                     updateGraphData(humidity_sensor_json)
@@ -99,6 +100,11 @@
             } else if (current_option == "all"){
                 set_option_all();
             } else {
+                for(i = 0; i < humidity_data.length; i++){
+                    data_len = humidity_data[0].data.length
+                    humidity_data[i].data = humidity_data[i].data.slice(data_len-10,data_len)
+                    console.log(humidity_data[i].data)
+                }
                 set_option_recent();
             }
             $.plot("#placeholder", humidity_data, options);
@@ -127,6 +133,7 @@
         <h2>Humidity</h2>
         
         <div id="content">
+            <center><t id="newest_time"></t></center>
             <div class="demo-container">
                 <div id="placeholder" class="demo-placeholder" style="float:left; width:675px;"></div>
                 <p id="choices" style="float:right; width:135px;"></p>

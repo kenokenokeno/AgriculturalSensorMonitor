@@ -19,19 +19,18 @@
                 lines:  { show: true },
                 points: { show: true },
                 xaxis: { 
-                    mode: "time",
-                    min: newest_clock-600000,
-                    max: newest_clock
+                    mode: "time"
                 },
             };
         }
         function set_option_today(){
+            var epoch_time = (new Date).getTime();
             options = {
                 lines:  { show: true },
                 xaxis: { 
                     mode: "time",
-                    min: newest_clock-86400000,
-                    max: newest_clock
+                    min: epoch_time-86400000,
+                    max: epoch_time
                 },
             };
         }
@@ -81,6 +80,8 @@
                         pressure_clock = json_me[i].pressure.data[json_me[i].pressure.data.length-1][0]
                         if(newest_clock < pressure_clock){
                             newest_clock = pressure_clock
+                            document.getElementById("newest_time").innerHTML = 
+                                    "Latest Value:  " + new Date(newest_clock)
                         }
                     }
                     updateGraphData(pressure_sensor_json)
@@ -99,6 +100,11 @@
             } else if (current_option == "all"){
                 set_option_all();
             } else {
+                for(i = 0; i < pressure_data.length; i++){
+                    data_len = pressure_data[0].data.length
+                    pressure_data[i].data = pressure_data[i].data.slice(data_len-10,data_len)
+                    console.log(pressure_data[i].data)
+                }
                 set_option_recent();
             }
             $.plot("#placeholder", pressure_data, options);
@@ -127,6 +133,7 @@
         <h2>Pressure</h2>
         
         <div id="content">
+            <center><t id="newest_time"></t></center>
             <div class="demo-container">
                 <div id="placeholder" class="demo-placeholder" style="float:left; width:675px;"></div>
                 <p id="choices" style="float:right; width:135px;"></p>

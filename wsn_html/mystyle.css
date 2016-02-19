@@ -24,6 +24,10 @@ p {
     margin-top: 10px;
 }
 
+t {
+    font: normal 10px "omnes-pro", Helvetica, Arial, sans-serif;
+}
+
 button {
     font-size: 18px;
     padding: 1px 7px;
@@ -71,7 +75,7 @@ input[type=checkbox] {
     width: 850px;
     height: 450px;
     padding: 20px 15px 15px 15px;
-    margin: 15px auto 30px auto;
+    margin: 1px auto 30px auto;
     border: 1px solid #ddd;
     background: #fff;
     background: linear-gradient(#f6f6f6 0, #fff 50px);
