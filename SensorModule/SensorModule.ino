@@ -48,6 +48,10 @@ void loop() {
   // Check if any commands were recieved
   int index = 0;
   while (Serial.available() > 0 && index <= sizeof(xbee_rx_packet)) {
+    if(index == 0){
+      //delay on the first loop
+      delay(15);
+    }
     xbee_rx_packet[index] = Serial.read(); 
     index++;
     xbee_rx_packet[index] = '\0'; // Null terminate the string
