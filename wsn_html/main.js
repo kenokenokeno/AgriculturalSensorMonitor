@@ -13,6 +13,7 @@ var weather_data;
 
 // Include the html pages
 var weatherPage     = fs.readFileSync('weather.html');
+var waterControlPage= fs.readFileSync('water-control.html');
 var cssPage         = fs.readFileSync('mystyle.css');
 var projInfoPage    = fs.readFileSync('project-info.html');
 var temperaturePage = fs.readFileSync('temperature.html');
@@ -105,6 +106,8 @@ function handleRequest(request, response){
             getWeatherData(response)
         } else if (request.url.indexOf('weather') != -1) {
             response.end(weatherPage);
+        } else if (request.url.indexOf('water-control') != -1) {
+            response.end(waterControlPage);
         } else if (request.url.indexOf('mystyle') != -1) {
             response.end(cssPage);
         } else if (request.url.indexOf('project-info') != -1) {
