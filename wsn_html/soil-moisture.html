@@ -61,11 +61,15 @@
         });
             
         //process get new data
+        var get_data_clicked = false
         $("#getdata").click(function () {
             var mygetrequest = new XMLHttpRequest();
-            mygetrequest.open("GET", "http://localhost:8080/data_new", true);
-            mygetrequest.send();
-            getStatus();
+            if(!get_data_clicked){
+                get_data_clicked = true
+                mygetrequest.open("GET", "http://localhost:8080/data_new", true);
+                mygetrequest.send();
+                getStatus();
+            }
         });
       
       
@@ -126,6 +130,8 @@
                     console.log(mygetrequest.responseText);
                     if(mygetrequest.responseText.indexOf("waiting for response") > -1){
                         setTimeout(getStatus, 200);
+                    } else {
+                        get_data_clicked = false;
                     }
                 } 
             }     
