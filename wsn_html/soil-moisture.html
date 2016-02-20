@@ -65,6 +65,7 @@
             var mygetrequest = new XMLHttpRequest();
             mygetrequest.open("GET", "http://localhost:8080/data_new", true);
             mygetrequest.send();
+            getStatus();
         });
       
       
@@ -75,6 +76,7 @@
         // get new sensor data from the database
         function getSensorData(){
             var mygetrequest = new XMLHttpRequest();
+            // process json data from the sensor network
             mygetrequest.onreadystatechange=function(){
                 if (mygetrequest.readyState==4 && mygetrequest.status==200){
                     var moisture_sensor_json = []
@@ -108,11 +110,27 @@
                 for(i = 0; i < moisture_data.length; i++){
                     data_len = moisture_data[0].data.length
                     moisture_data[i].data = moisture_data[i].data.slice(data_len-10,data_len)
-                    console.log(moisture_data[i].data)
+                    //console.log(moisture_data[i].data)
                 }
                 set_option_recent();
             }
             $.plot("#placeholder", moisture_data, options);
+        }
+        
+        // get status of the get command
+        function getStatus(){
+            var mygetrequest = new XMLHttpRequest(); 
+            mygetrequest.onreadystatechange=function(){
+                if (mygetrequest.readyState==4 && mygetrequest.status==200){
+                    document.getElementById("getdata_status").innerHTML = mygetrequest.responseText
+                    console.log(mygetrequest.responseText);
+                    if(mygetrequest.responseText.indexOf("waiting for response") > -1){
+                        setTimeout(getStatus, 1000);
+                    }
+                } 
+            }     
+            mygetrequest.open("GET", "http://localhost:8080/get_data_status", true);
+            mygetrequest.send();
         }
       
         // run once, then get new sensor data every 10 secs
@@ -138,15 +156,16 @@
         <h2>Soil Moisture</h2>
         
         <div id="content">
-            <center><t id="newest_time"></t></center>
             <div class="demo-container">
                 <div id="placeholder" class="demo-placeholder" style="float:left; width:675px;"></div>
                 <p id="choices" style="float:right; width:135px;"></p>
             </div>
+            <center><t id="newest_time"></t></center>
             <p>Graph Selection: <button id="recent">Recent Data</button>
             <button id="today">Today's Data</button>
             <button id="all">All Data</button></p>
-            <p>Get New Data: . .<button id="getdata">Get Data</button></p>
+            <p>Get New Data: . .<button id="getdata">Get Data</button>
+            <n>. . . . . .</n><m id="getdata_status"></m></p>
             <p>The soil moisture content is found by measuring the conductivity of the soil. 
             To do this, the soil sensor applies a voltage across two metal terminals that are 
             embedded in the soil.  When the voltage is applied, a current is generated and it 

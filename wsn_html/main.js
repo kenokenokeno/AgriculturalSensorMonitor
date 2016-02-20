@@ -82,8 +82,9 @@ couchdb_list_view = {
 }
 
 // sensor data array
-sensor_data_array = [] //stores all of the local sensor data
-newest_data = [] // stores the newest sensor data
+var sensor_data_array = [] //stores all of the local sensor data
+var newest_data = [] // stores the newest sensor data
+var data_new_status = "." //status of the get new data command
 
 // at start get all json data from the database
 getAllDatabases();
@@ -95,8 +96,11 @@ function handleRequest(request, response){
         if(request.url.indexOf('data_sensor') != -1) {
             response.end(JSON.stringify(sensor_data_array));
         } else if(request.url.indexOf('data_new') != -1) {
-            getNewData()
+            getNewData();
+            data_new_status = "waiting for response . . . please be patient"
             response.end("OK");
+        } else if(request.url.indexOf('get_data_status') != -1) {
+            response.end(data_new_status);
         } else if(request.url.indexOf('data_weather') != -1) {
             getWeatherData(response)
         } else if (request.url.indexOf('weather') != -1) {
@@ -133,10 +137,19 @@ function handleRequest(request, response){
     } else if(request.method === "POST"){
         console.log("\nRECEIVED POST: ")
         request.on('data', function(body) {
-            var sensor_data = JSON.parse(body)
             // send the request okay msg to the client
             response.writeHead(200, {'Content-Type': 'text/html'});
             response.end('OK')
+            
+            // check if its a status packet
+            if (body.indexOf('Gateway') > -1) {
+                 data_new_status = body;
+                 return
+            }
+            
+            // parse the json data
+            var sensor_data = JSON.parse(body)
+            
             // verify the json packet elements
             if (!('dev_id' in sensor_data && 'clock' in sensor_data && 
                   request.url == '/upload')){
@@ -149,6 +162,9 @@ function handleRequest(request, response){
                 console.log("ERR: invalid data values, ignoring packet")
                 return;
             }
+            // update the get new data status
+            data_new_status = "new data received from the network"
+            
             // get the database name
             database_name = 'sensor_node_' + sensor_data.dev_id
             
@@ -309,10 +325,22 @@ function getNewData(){
             console.log(data)
         });*/
     }).on('error', function(e) {
+        console.error("getNewData Error: no response for sensor network gateway");
+        console.error(e);
+        data_new_status = "Error: no response for Sensor Network Gateway"
+    });
+}
+
+// Gets new data from the Gateway
+function turnOnWater(){
+    http.get('http://'+edison_hostname+':8080/turn_on_water', function(res) {
+    }).on('error', function(e) {
+        console.error("turnOnWater Error: no response for sensor network gateway");
         console.error(e);
     });
 }
 
+// Get weather data from the internet
 function getWeatherData(page_response){
     var d = new Date();
     var new_time = false

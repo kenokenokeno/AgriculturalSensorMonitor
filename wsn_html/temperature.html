@@ -61,9 +61,10 @@
                 if (mygetrequest.readyState==4 && mygetrequest.status==200){
                     console.log("GetNewData: " + mygetrequest.responseText)
                 } 
-            }*/
+            }*/     
             mygetrequest.open("GET", "http://localhost:8080/data_new", true);
             mygetrequest.send();
+            getStatus();
         });
       
         // perfrom an initial plot of the data
@@ -75,6 +76,7 @@
             var mygetrequest = new XMLHttpRequest();
             mygetrequest.onreadystatechange=function(){
                 if (mygetrequest.readyState==4 && mygetrequest.status==200){
+                    // process json data from the sensor network
                     var temp_sensor_json = []
                     json_me = JSON.parse(mygetrequest.responseText)
                     for(i = 0; i < json_me.length; i++){
@@ -106,13 +108,29 @@
                 for(i = 0; i < temp_data.length; i++){
                     data_len = temp_data[0].data.length
                     temp_data[i].data = temp_data[i].data.slice(data_len-10,data_len)
-                    console.log(temp_data[i].data)
+                    //console.log(temp_data[i].data)
                 }
                 set_option_recent();
             }
             $.plot("#placeholder", temp_data, options);
         }
-      
+        
+        // get status of the get command
+        function getStatus(){
+            var mygetrequest = new XMLHttpRequest(); 
+            mygetrequest.onreadystatechange=function(){
+                if (mygetrequest.readyState==4 && mygetrequest.status==200){
+                    document.getElementById("getdata_status").innerHTML = mygetrequest.responseText
+                    console.log(mygetrequest.responseText);
+                    if(mygetrequest.responseText.indexOf("waiting for response") > -1){
+                        setTimeout(getStatus, 1000);
+                    }
+                } 
+            }     
+            mygetrequest.open("GET", "http://localhost:8080/get_data_status", true);
+            mygetrequest.send();
+        }
+        
         // run once, then get new sensor data every 10 secs
         getSensorData()
         setInterval(getSensorData, 1000);
@@ -136,15 +154,16 @@
         <h2>Temperature</h2>
         
         <div id="content">
-            <center><t id="newest_time"></t></center>
             <div class="demo-container">
                 <div id="placeholder" class="demo-placeholder" style="float:left; width:675px;"></div>
                 <p id="choices" style="float:right; width:135px;"></p>
             </div>
+            <center><t id="newest_time"></t></center>
             <p>Graph Selection: <button id="recent">Recent Data</button>
             <button id="today">Today's Data</button>
             <button id="all">All Data</button></p>
-            <p>Get New Data: . .<button id="getdata">Get Data</button></p>
+            <p>Get New Data: . .<button id="getdata">Get Data</button>
+            <n>. . . . . .</n><m id="getdata_status"></m></p>
             <p>Temperature is a measurement of the heat/energy present in the air. As the 
             temperature increases, the energy causes water in the soil to evaporate more 
             quickly which results in the soil requiring more water. The temperature can be 
