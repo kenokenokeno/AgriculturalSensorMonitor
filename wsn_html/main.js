@@ -333,7 +333,7 @@ function getNewData(){
     });
 }
 
-// Gets new data from the Gateway
+// Turn on water control
 function turnOnWater(){
     var request = http.get('http://'+edison_hostname+':8080/turn_on_water', function(res) {
     }).on('error', function(e) {
@@ -342,6 +342,18 @@ function turnOnWater(){
     request.setTimeout( 10000, function( ) {
         console.error("turnOnWater Timeout Error: no response for sensor network gateway");
         data_new_status = "Error: turnOnWater Failed. no response for Sensor Network Gateway"
+    });
+}
+
+// Turn off water control
+function turnOffWater(){
+    var request = http.get('http://'+edison_hostname+':8080/turn_off_water', function(res) {
+    }).on('error', function(e) {
+        console.error(e);
+    });
+    request.setTimeout( 10000, function( ) {
+        console.error("turnOffWater Timeout Error: no response for sensor network gateway");
+        data_new_status = "Error: turnOffWater Failed. no response for Sensor Network Gateway"
     });
 }
 

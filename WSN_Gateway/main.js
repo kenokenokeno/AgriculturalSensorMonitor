@@ -12,6 +12,8 @@ var post_interval = 0
 // Json file save
 var json_save_path = "/home/root/data/node_packets";
 var get_data = "/get_data";
+var turn_on_water = "/turn_on_water";
+var turn_off_water = "/turn_off_water";
 var node_packets = [];
 var MAX_QUEUE_SIZE = 5;
 
@@ -229,6 +231,14 @@ function handleRequest(request, response){
             console.log("  Command Received: forwarding to network")
             // this writes the command to all sensor nodes
             serialPort.write("GetNewData\n");
+        } else if(url == turn_on_water){
+            console.log("  TurnOnWater Command Received, forwarding to network")
+            // this writes the command to all sensor nodes
+            serialPort.write("TurnOnWater\n");
+        } else if(url == turn_off_water){
+            console.log("  TurnOffWater Command Received, forwarding to network")
+            // this writes the command to all sensor nodes
+            serialPort.write("TurnOffWater\n");
         }
     }
 }

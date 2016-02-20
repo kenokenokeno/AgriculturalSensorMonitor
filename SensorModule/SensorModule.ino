@@ -24,6 +24,8 @@ char xbee_rx_packet[100];
 double sensorModuleDutyCycle = 60000;
 // set the device id of the sensor module
 char sensorModuleID = '1';
+// pin used for water control
+int WATER_CONTROL_PIN = 52;
 
 
 void setup() {
@@ -35,6 +37,8 @@ void setup() {
   pressure.begin();
   // start the HTV21D humidity sensor
   myHumidity.begin();
+  // set up the motor control output
+  pinMode(WATER_CONTROL_PIN, OUTPUT); 
 }
 
 
@@ -44,7 +48,6 @@ bool cmd_received = 0;
 
 // ==[ LOOP ]=========================================================
 void loop() {
-  
   // Check if any commands were recieved
   int index = 0;
   while (Serial.available() > 0 && index <= sizeof(xbee_rx_packet)) {
@@ -61,10 +64,22 @@ void loop() {
   if(index > 0){
     Serial1.print("\nRX DATA: " );
     Serial1.println(xbee_rx_packet);
+    // process the get new data command
     if(String(xbee_rx_packet).indexOf("GetNewData") >=0) {
       cmd_received = 1;
-      Serial1.println("COMMAND RECEIVED !");
+      Serial1.println("GET NEW DATA COMMAND !");
     }
+    // process the turn water ON command
+    else if(String(xbee_rx_packet).indexOf("TurnOnWater") >=0) {
+      Serial1.println("TURN ON THE WATER !");
+      digitalWrite(WATER_CONTROL_PIN, HIGH);
+    }
+    // process the turn water OFF command
+    else if(String(xbee_rx_packet).indexOf("TurnOffWater") >=0) {
+      Serial1.println("TURN OFF THE WATER !");
+      digitalWrite(WATER_CONTROL_PIN, LOW);
+    }
+    
     //reset the xbee rx string
     for(int i = 0; i < sizeof(xbee_rx_packet); i++){
       xbee_rx_packet[i] = 0;
