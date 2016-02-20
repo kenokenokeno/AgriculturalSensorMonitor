@@ -318,25 +318,30 @@ function processJSON(json_data){
 
 // Gets new data from the Gateway
 function getNewData(){
-    http.get('http://'+edison_hostname+':8080/get_data', function(res) {
+    var request = http.get('http://'+edison_hostname+':8080/get_data', function(res) {
         /*console.log("statusCode: ", res.statusCode);
         console.log("headers: ", res.headers);
         res.on('data', function(data) {
             console.log(data)
         });*/
     }).on('error', function(e) {
-        console.error("getNewData Error: no response for sensor network gateway");
         console.error(e);
-        data_new_status = "Error: no response for Sensor Network Gateway"
+    });
+    request.setTimeout( 10000, function( ) {
+        console.error("getNewData Timeout Error: no response for sensor network gateway");
+        data_new_status = "TimeoutError: no response for Sensor Network Gateway"
     });
 }
 
 // Gets new data from the Gateway
 function turnOnWater(){
-    http.get('http://'+edison_hostname+':8080/turn_on_water', function(res) {
+    var request = http.get('http://'+edison_hostname+':8080/turn_on_water', function(res) {
     }).on('error', function(e) {
-        console.error("turnOnWater Error: no response for sensor network gateway");
         console.error(e);
+    });
+    request.setTimeout( 10000, function( ) {
+        console.error("turnOnWater Timeout Error: no response for sensor network gateway");
+        data_new_status = "Error: turnOnWater Failed. no response for Sensor Network Gateway"
     });
 }
 
