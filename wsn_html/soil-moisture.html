@@ -125,7 +125,7 @@
                     document.getElementById("getdata_status").innerHTML = mygetrequest.responseText
                     console.log(mygetrequest.responseText);
                     if(mygetrequest.responseText.indexOf("waiting for response") > -1){
-                        setTimeout(getStatus, 1000);
+                        setTimeout(getStatus, 200);
                     }
                 } 
             }     
