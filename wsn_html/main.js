@@ -315,6 +315,8 @@ function processJSON(json_data){
         if('moisture' in json_data){
             sensor_data_array[json_data.dev_id-1].
                 moisture.data.push([json_data.clock, json_data.moisture])
+                current_soil_moisture = json_data.moisture
+                checkWaterControl()
         }
     }
 }
@@ -338,6 +340,7 @@ function getNewData(){
 
 // Turn on water control
 function turnOnWater(){
+    console.log("Turn water ON")
     var request = http.get('http://'+edison_hostname+':8080/turn_on_water', function(res) {
     }).on('error', function(e) {
         console.error(e);
@@ -350,6 +353,7 @@ function turnOnWater(){
 
 // Turn off water control
 function turnOffWater(){
+    console.log("Turn water OFF")
     var request = http.get('http://'+edison_hostname+':8080/turn_off_water', function(res) {
     }).on('error', function(e) {
         console.error(e);
@@ -359,6 +363,63 @@ function turnOffWater(){
         data_new_status = "Error: turnOffWater Failed. no response for Sensor Network Gateway"
     });
 }
+
+// Water Control Smart Algorithm Modes:
+//  - [1] Dumb: turn on periodically
+//  - [2] Reactive mode: Threshold do something. 
+//  - [3] Proactive mode: do things when you think they are going to be needed. 
+var ctrl_mode_dumb      = 1;
+var ctrl_mode_reactive  = 2;
+var ctrl_mode_proactive = 3;
+// set the water control mode
+var water_ctrl_mode = ctrl_mode_reactive    //<<========= Sets the water control mode
+// variables for dumb timing control
+var dumb_water_on_time = 120000
+var dumb_water_off_time = 120000
+var last_measured_time = 0
+var water_status_on = false
+// variable for current soil moisture
+var current_soil_moisture = 1000;
+// reactive mode soil moisture threshold
+var soil_mois_threshold = 350;
+// handle the water control for the system
+function checkWaterControl(){
+    var d = new Date();
+    // swtich between water control systems
+    switch(water_ctrl_mode) {
+        case ctrl_mode_dumb:
+            console.log("Water Control Mode: Dumb")
+            if(water_status_on == false){
+                if(d.getTime()-last_measured_time >= dumb_water_off_time){
+                    // Turn the water on
+                    turnOnWater()
+                    water_status_on = true
+                    last_measured_time = d.getTime()
+                    
+                }
+            }  else {
+                if(d.getTime()-last_measured_time >= dumb_water_on_time){
+                    // Turn the water off
+                    turnOffWater()
+                    water_status_on = false
+                    last_measured_time = d.getTime()
+                }
+            } 
+            break;
+        case ctrl_mode_reactive:
+            console.log("Water Control Mode: Reactive")
+            if(current_soil_moisture <= soil_mois_threshold){
+                turnOnWater()
+            } else {
+                turnOffWater()
+            }
+            break;
+        case ctrl_mode_proactive:
+            console.log("Water Control Mode: Proactive")
+            break;
+    }
+}
+
 
 // Get weather data from the internet
 function getWeatherData(page_response){
@@ -384,3 +445,6 @@ function getWeatherData(page_response){
         page_response.end(weather_data);
     }
 }
+
+
+
