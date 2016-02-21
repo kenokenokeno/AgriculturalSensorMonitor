@@ -431,11 +431,36 @@ function calcSoilMoisThreshold(){
             (weather_json.weather[0].description.indexOf("mist") > -1) || 
             (weather_json.weather[0].description.indexOf("storm") > -1) || 
             (weather_json.weather[0].description.indexOf("hurricane") > -1)){
-        console.log("Looks like rainny weather, better bring an umbrella.")    
-    } else {
-        console.log("weather looks good !!")
+        console.log("Looks like rainny weather, setting to threshold to 0")
+        return 0;   
     }
-    return soil_mois_threshold;
+    // initially set the calc threshold to the soil moisture threshold
+    calc_threshold = soil_mois_threshold;
+    //console.log("threshold; " + calc_threshold);
+    // update the threshold for temperature
+    if(newest_data.temp < 20){
+        calc_threshold -= 10;
+    } else if (newest_data.temp > 35){
+        calc_threshold += 10;
+    }
+    //console.log("threshold; " + calc_threshold);
+    // update the threshold for humidiy
+    if(newest_data.humidiy < 20){
+        calc_threshold += 10;
+    } else if (newest_data.humidiy > 60){
+        calc_threshold -= 5;
+    } else if (newest_data.humidiy > 85){
+        calc_threshold -= 10;
+    }
+    //console.log("threshold; " + calc_threshold);
+    // update the threshold for light
+    if(newest_data.light < 200){
+        calc_threshold -= 5;
+    } else if (newest_data.light > 600){
+        calc_threshold += 5;
+    }
+    //console.log("threshold; " + calc_threshold);
+    return calc_threshold;
 }
 
 

@@ -274,7 +274,6 @@ function handleRequest(request, response){
         }
         // write the string to the serial port
         if((new Date).getTime() - repeat_timeout >= 500){
-            console.log("write to serial port")
             serialPort.write(write_string+"\n");
             repeat_timeout = (new Date).getTime();
         }
