@@ -10,6 +10,7 @@ var edison_hostname = '192.168.1.145'
 // weather data and time
 var weather_time = 0
 var weather_data;
+var weather_json;
 
 // Include the html pages
 var weatherPage     = fs.readFileSync('weather.html');
@@ -103,7 +104,7 @@ function handleRequest(request, response){
         } else if(request.url.indexOf('get_data_status') != -1) {
             response.end(data_new_status);
         } else if(request.url.indexOf('data_weather') != -1) {
-            getWeatherData(response)
+            response.end(getWeatherData());
         } else if (request.url.indexOf('weather') != -1) {
             response.end(weatherPage);
         } else if (request.url.indexOf('water-control') != -1) {
@@ -315,7 +316,6 @@ function processJSON(json_data){
         if('moisture' in json_data){
             sensor_data_array[json_data.dev_id-1].
                 moisture.data.push([json_data.clock, json_data.moisture])
-                current_soil_moisture = json_data.moisture
                 checkWaterControl()
         }
     }
@@ -372,14 +372,12 @@ var ctrl_mode_dumb      = 1;
 var ctrl_mode_reactive  = 2;
 var ctrl_mode_proactive = 3;
 // set the water control mode
-var water_ctrl_mode = ctrl_mode_reactive    //<<========= Sets the water control mode
+var water_ctrl_mode = ctrl_mode_proactive    //<<========= Sets the water control mode
 // variables for dumb timing control
 var dumb_water_on_time = 120000
 var dumb_water_off_time = 120000
 var last_measured_time = 0
 var water_status_on = false
-// variable for current soil moisture
-var current_soil_moisture = 1000;
 // reactive mode soil moisture threshold
 var soil_mois_threshold = 350;
 // handle the water control for the system
@@ -391,24 +389,22 @@ function checkWaterControl(){
             console.log("Water Control Mode: Dumb")
             if(water_status_on == false){
                 if(d.getTime()-last_measured_time >= dumb_water_off_time){
-                    // Turn the water on
-                    turnOnWater()
-                    water_status_on = true
-                    last_measured_time = d.getTime()
+                    turnOnWater();
+                    water_status_on = true;
+                    last_measured_time = d.getTime();
                     
                 }
             }  else {
                 if(d.getTime()-last_measured_time >= dumb_water_on_time){
-                    // Turn the water off
-                    turnOffWater()
-                    water_status_on = false
-                    last_measured_time = d.getTime()
+                    turnOffWater();
+                    water_status_on = false;
+                    last_measured_time = d.getTime();
                 }
             } 
             break;
         case ctrl_mode_reactive:
             console.log("Water Control Mode: Reactive")
-            if(current_soil_moisture <= soil_mois_threshold){
+            if(newest_data && (newest_data.moisture <= soil_mois_threshold)){
                 turnOnWater()
             } else {
                 turnOffWater()
@@ -416,8 +412,30 @@ function checkWaterControl(){
             break;
         case ctrl_mode_proactive:
             console.log("Water Control Mode: Proactive")
+            calc_threshold = calcSoilMoisThreshold()
+            if(newest_data && (newest_data.moisture <= calc_threshold)){
+                turnOnWater()
+            } else {
+                turnOffWater()
+            }
             break;
     }
+}
+
+function calcSoilMoisThreshold(){
+    // check if the weather description includes rainny weather
+    if((weather_json.weather[0].description.indexOf("thunderstorm") > -1) || 
+            (weather_json.weather[0].description.indexOf("drizzle") > -1) ||
+            (weather_json.weather[0].description.indexOf("rain") > -1) || 
+            (weather_json.weather[0].description.indexOf("snow") > -1) || 
+            (weather_json.weather[0].description.indexOf("mist") > -1) || 
+            (weather_json.weather[0].description.indexOf("storm") > -1) || 
+            (weather_json.weather[0].description.indexOf("hurricane") > -1)){
+        console.log("Looks like rainny weather, better bring an umbrella.")    
+    } else {
+        console.log("weather looks good !!")
+    }
+    return soil_mois_threshold;
 }
 
 
@@ -434,17 +452,18 @@ function getWeatherData(page_response){
             res.on('data', function(data) {
                 //console.log(JSON.parse(data))
                 weather_data = data
-                page_response.end(weather_data);
-                return
+                weather_json = JSON.parse(data)
+                return weather_data;
             })            
         }).on('error', function(e) {
             console.error(e);
         });
     }
     if(new_time == false){
-        page_response.end(weather_data);
+        return weather_data;
     }
 }
-
+// Get the weather data once on start
+getWeatherData();
 
 
