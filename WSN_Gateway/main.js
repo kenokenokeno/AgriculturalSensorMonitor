@@ -74,7 +74,7 @@ function loop(){
     }
     i++;//*/
     //SEND REAL DATA (Uncomment this Section)
-    sendHttp(wsm_data)
+    sendJsonHttp(wsm_data)
 }
 // Only set the post interval if not equal to 0
 if(post_interval != 0){
@@ -142,7 +142,7 @@ function parseToJson(xbee_data) {
         saveToFile(wsm_data)
         // the new data to the http server
         if(post_interval == 0){
-            sendHttp(wsm_data)
+            sendJsonHttp(wsm_data)
         }
     }
 }
@@ -185,7 +185,7 @@ function sendHttp(data){
         path: '/upload',
         method: 'POST',
         headers: {
-            'Content-Length': JSON.stringify(data).length
+            'Content-Length': data.length
         }
     };
     // create the http request using options
@@ -194,8 +194,20 @@ function sendHttp(data){
         console.log('problem with request: ' + e.message);
     });
     // send the post request
-    req.write(JSON.stringify(data));
+    req.write(data);
     req.end();
+}
+
+// send HTTP Post packet 
+function sendJsonHttp(data){
+    // check if data is valid
+    if(!data || data.length <= 0){
+        return;
+    }    
+    // stringify and format the Json data
+    json_data = JSON.stringify(data);
+    // send the json data using http
+    sendHttp(json_data);
 }
 
 // start the local edison server: 
@@ -234,7 +246,6 @@ function handleRequest(request, response){
         if(url == get_data){
             console.log("  Command Received: forwarding to network")
             // this writes the command to all sensor nodes
-            
             repeatSerialWrite("GetNewData");
         } else if(url == turn_on_water){
             console.log("  TurnOnWater Command Received, forwarding to network")
@@ -256,6 +267,8 @@ function handleRequest(request, response){
         // return if the timeout value is reached
         if((new Date).getTime() - start_timeout >= 5000){
             //TODO: Add a gateway to wsm timeout message
+            console.log("Gateway Error: no response from sensor network")
+            sendHttp("Gateway Error: no response from sensor network")
             return;
         }
         // write the string to the serial port
