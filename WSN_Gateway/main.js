@@ -230,9 +230,11 @@ function handleRequest(request, response){
         console.log("  HEADERS: " + JSON.stringify(headers));
         console.log("  URL: " + url);
         response.end("OK");
+        data_received = "empty";
         if(url == get_data){
             console.log("  Command Received: forwarding to network")
             // this writes the command to all sensor nodes
+            
             repeatSerialWrite("GetNewData");
         } else if(url == turn_on_water){
             console.log("  TurnOnWater Command Received, forwarding to network")
@@ -247,10 +249,8 @@ function handleRequest(request, response){
     function repeatSerialWrite(write_string){
         // return if the correct response was received
         if(data_received && (data_received.indexOf(write_string) > -1)){
-            data_received = "none";
             return;   
         } else if(data_received && (data_received.indexOf("KENO") > -1)){
-            data_received = "none";
             return;        
         }
         // return if the timeout value is reached
