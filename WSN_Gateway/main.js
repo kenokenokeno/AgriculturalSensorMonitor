@@ -219,6 +219,7 @@ server.listen(8080, function(){
 // function that handles requests and sends responses
 function handleRequest(request, response){
     var start_timeout = (new Date).getTime();
+    var repeat_timeout = 0
     var headers = request.headers;
     var method = request.method;
     var url = request.url;
@@ -272,10 +273,14 @@ function handleRequest(request, response){
             return;
         }
         // write the string to the serial port
-        serialPort.write(write_string+"\n");
+        if((new Date).getTime() - repeat_timeout >= 500){
+            console.log("write to serial port")
+            serialPort.write(write_string+"\n");
+            repeat_timeout = (new Date).getTime();
+        }
         //console.log("write2serial: " + write_string);
         // repeat this function after a timeout
-        setTimeout(repeatSerialWrite, 500, write_string);
+        setTimeout(repeatSerialWrite, 10, write_string);
     }
 }
 

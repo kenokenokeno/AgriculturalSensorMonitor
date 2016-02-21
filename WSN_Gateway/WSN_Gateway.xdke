@@ -21,8 +21,8 @@
         "name": "WSN_Gateway.xdk"
       },
       "WSN_Gateway.xdke": {
-        "previousModTime": 1456075268000,
-        "modified": 1456075268000,
+        "previousModTime": 1456085375000,
+        "modified": 1456085375000,
         "seen": true,
         "name": "WSN_Gateway.xdke"
       },
@@ -33,8 +33,8 @@
         "name": "icon.png"
       },
       "main.js": {
-        "previousModTime": 1456075318000,
-        "modified": 1456075318000,
+        "previousModTime": 1456085454000,
+        "modified": 1456085454000,
         "seen": true,
         "name": "main.js"
       },
@@ -71,7 +71,7 @@
     },
     "boardFileStatus": {
       "main.js": {
-        "previousModTime": 1456075324656
+        "previousModTime": 1456085460330
       }
     }
   }
