@@ -37,10 +37,12 @@ var serialPort = new SerialPort(serialPath, {
 });
 
 // Open the serial port and start the serial listener
+var data_received;
 serialPort.on("open",function() {
     console.log("SerialPort connected to " + serialPath);
     // Read available data from serial port
     serialPort.on("data", function(xbee_packet) { 
+        data_received = xbee_packet.toString()
         parseToJson(xbee_packet);
     });
 });
@@ -204,6 +206,7 @@ server.listen(8080, function(){
 });
 // function that handles requests and sends responses
 function handleRequest(request, response){
+    var start_timeout = (new Date).getTime();
     var headers = request.headers;
     var method = request.method;
     var url = request.url;
@@ -230,16 +233,35 @@ function handleRequest(request, response){
         if(url == get_data){
             console.log("  Command Received: forwarding to network")
             // this writes the command to all sensor nodes
-            serialPort.write("GetNewData\n");
+            repeatSerialWrite("GetNewData");
         } else if(url == turn_on_water){
             console.log("  TurnOnWater Command Received, forwarding to network")
             // this writes the command to all sensor nodes
-            serialPort.write("TurnOnWater\n");
+            repeatSerialWrite("TurnOnWater");
         } else if(url == turn_off_water){
             console.log("  TurnOffWater Command Received, forwarding to network")
             // this writes the command to all sensor nodes
-            serialPort.write("TurnOffWater\n");
+            repeatSerialWrite("TurnOffWater");
         }
+    }
+    function repeatSerialWrite(write_string){
+        // return if the correct response was received
+        if(data_received && (data_received.indexOf(write_string) > -1)){
+            data_received = "none";
+            return;   
+        } else if(data_received && (data_received.indexOf("KENO:") > -1)){
+            data_received = "none";
+            return;        
+        }
+        // return if the timeout value is reached
+        if((new Date).getTime() - start_timeout >= 5000){
+            return;
+        }
+        // write the string to the serial port
+        serialPort.write(write_string+"\n");
+        //console.log("write2serial: " + write_string)
+        // repeat this function after a timeout
+        setTimeout(repeatSerialWrite, 500, write_string)
     }
 }
 
