@@ -249,19 +249,20 @@ function handleRequest(request, response){
         if(data_received && (data_received.indexOf(write_string) > -1)){
             data_received = "none";
             return;   
-        } else if(data_received && (data_received.indexOf("KENO:") > -1)){
+        } else if(data_received && (data_received.indexOf("KENO") > -1)){
             data_received = "none";
             return;        
         }
         // return if the timeout value is reached
         if((new Date).getTime() - start_timeout >= 5000){
+            //TODO: Add a gateway to wsm timeout message
             return;
         }
         // write the string to the serial port
         serialPort.write(write_string+"\n");
-        //console.log("write2serial: " + write_string)
+        //console.log("write2serial: " + write_string);
         // repeat this function after a timeout
-        setTimeout(repeatSerialWrite, 500, write_string)
+        setTimeout(repeatSerialWrite, 500, write_string);
     }
 }
 
