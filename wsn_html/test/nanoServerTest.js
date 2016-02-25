@@ -19,8 +19,8 @@ sensor_data = {
         "label" : "pressure",
         "data"  : []
     },
-    "temp"     : {
-        "label" : "temp",
+    "temperature"     : {
+        "label" : "temperature",
         "data"  : []
     },
     "humidity" : {

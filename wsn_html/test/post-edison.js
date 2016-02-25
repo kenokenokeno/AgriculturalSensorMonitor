@@ -4,7 +4,7 @@ var sensorData = {
     "dev_id" : 2,
     "clock" : 1455089290000,
     "pressure" : 1000,
-    "temp" : 28,
+    "temperature" : 28,
     "humidity" : 60,
     "light" : 30,
     "moisture" : 160
