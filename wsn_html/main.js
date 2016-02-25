@@ -51,6 +51,10 @@ sensor_data = {
     "moisture" : {
         "label" : "moisture",
         "data"  : []
+    },
+    "water" : {
+        "label" : "water",
+        "data"  : []
     }
 }
 
@@ -76,6 +80,9 @@ couchdb_list_view = {
        },
        "moisture": {
            "map": "function(doc) { if(doc.moisture){ emit(doc._id, doc.moisture) } }"
+       },
+       "water": {
+           "map": "function(doc) { if(doc.water){ emit(doc._id, doc.water) } }"
        }
     },
     "lists": {
@@ -278,7 +285,12 @@ function getAllDatabases(){
                             sensor_data_array[this_dev_id-1].moisture.data = body
                         }
                     });
-                              
+                    sensor_db.get('_design/sensor_map/_list/index-values/water/', 
+                            { revs_info: true }, function(err, body) {
+                        if (!err){
+                            sensor_data_array[this_dev_id-1].water.data = body
+                        }
+                    });
                 });
             }        
         });
@@ -317,6 +329,10 @@ function processJSON(json_data){
             sensor_data_array[json_data.dev_id-1].
                 moisture.data.push([json_data.clock, json_data.moisture])
                 checkWaterControl()
+        }
+        if('water' in json_data){
+            sensor_data_array[json_data.dev_id-1].
+                water.data.push([json_data.clock, json_data.water])
         }
     }
 }

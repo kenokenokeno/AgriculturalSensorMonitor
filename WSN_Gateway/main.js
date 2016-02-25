@@ -124,12 +124,14 @@ function parseToJson(xbee_data) {
         var light_value = getDataValue(xbee_string, "L")
         // get the soil moisture value
         var soil_value = getDataValue(xbee_string, "M")
+        // water controller state 
+        var water_value = getDataValue(xbee_string, "W")
         
         //put the data in a json format
         wsm_data =
             {"dev_id": dev_id, "clock":clock_value, "pressure":pressure_value, 
             "temperature":temp_value, "humidity":humidity_value, 
-            "light":light_value, "moisture":soil_value}
+            "light":light_value, "moisture":soil_value, "water":water_value}
         // print the packet data to the console
         console.log("device id: " + wsm_data.dev_id)
         console.log("clock:    " + wsm_data.clock)
@@ -138,6 +140,7 @@ function parseToJson(xbee_data) {
         console.log("humidity: " + wsm_data.humidity)
         console.log("light:    " + wsm_data.light)
         console.log("moisture: " + wsm_data.moisture)
+        console.log("water: " + wsm_data.water)
         // save the new sensor data to a file
         saveToFile(wsm_data)
         // the new data to the http server

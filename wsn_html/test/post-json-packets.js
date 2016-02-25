@@ -2,12 +2,13 @@ var querystring = require("querystring");
 var http = require("http");
 var sensorData = {
     "dev_id" : 1,
-    "clock" : 1456378818000,
-    //"pressure" : 1001,
-    //"temperature" : 28,
-    //"humidity" : 61,
-    //"light" : 31,
-    "moisture" : 161
+    "clock" : 1456381873000,
+    "pressure" : 1001,
+    "temperature" : 28,
+    "humidity" : 61,
+    "light" : 31,
+    "moisture" : 161,
+    "water" : 1
 };
 
 

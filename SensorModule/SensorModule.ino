@@ -26,6 +26,7 @@ double sensorModuleDutyCycle = 60000;
 char sensorModuleID = '1';
 // pin used for water control
 int WATER_CONTROL_PIN = 52;
+int WATER_CONTROL_STATE = 0;
 
 
 void setup() {
@@ -74,12 +75,14 @@ void loop() {
       Serial.println("TurnOnWaterACK");
       Serial1.println("TURN ON THE WATER !");
       digitalWrite(WATER_CONTROL_PIN, HIGH);
+      WATER_CONTROL_STATE = 1;
     }
     // process the turn water OFF command
     else if(String(xbee_rx_packet).indexOf("TurnOffWater") >=0) {
       Serial.println("TurnOffWaterACK");
       Serial1.println("TURN OFF THE WATER !");
       digitalWrite(WATER_CONTROL_PIN, LOW);
+      WATER_CONTROL_STATE = 0;
     }
     
     //reset the xbee rx string
@@ -196,7 +199,8 @@ void getSensorPacket(char *xbee_packet){
     Packet = Packet + ",T" + Temp2;
   }
   Packet = Packet + ",L" + Light;
-  Packet = Packet + ",M" + Moisture + ",";
+  Packet = Packet + ",M" + Moisture;
+  Packet = Packet + ",W" + String(WATER_CONTROL_STATE) + ",";
   
   int crc_value = checkSum(Packet, Packet.length());
   String SendPacket = Packet + char(crc_value) + '\0';
