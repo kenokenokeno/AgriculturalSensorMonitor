@@ -60,23 +60,23 @@ couchdb_list_view = {
     "language": "javascript",
     "views": {
         "dev_id": {
-            "map": "function(doc) { emit(doc._id, doc.dev_id) }"
-        },
-        "temp": {
-            "map": "function(doc) { emit(doc._id, doc.temperature) }"
-        },
-        "pressure": {
-            "map": "function(doc) { emit(doc._id, doc.pressure) }"
-        },
-        "humidity": {
-            "map": "function(doc) { emit(doc._id, doc.humidity) }"
-        },
-        "light": {
-            "map": "function(doc) { emit(doc._id, doc.light) }"
-        },
-        "moisture": {
-            "map": "function(doc) { emit(doc._id, doc.moisture) }"
-        }
+           "map": "function(doc) { if(doc.dev_id){ emit(doc._id, doc.dev_id) } }"
+       },
+       "temp": {
+           "map": "function(doc) { if(doc.temperature){ emit(doc._id, doc.temperature) } }"
+       },
+       "pressure": {
+           "map": "function(doc) { if(doc.pressure){ emit(doc._id, doc.pressure) } }"
+       },
+       "humidity": {
+           "map": "function(doc) { if(doc.humidity){ emit(doc._id, doc.humidity)} }"
+       },
+       "light": {
+           "map": "function(doc) { if(doc.light){ emit(doc._id, doc.light) } }"
+       },
+       "moisture": {
+           "map": "function(doc) { if(doc.moisture){ emit(doc._id, doc.moisture) } }"
+       }
     },
     "lists": {
         "index-values": "function(head, req) { send('[');if(row=getRow()){send('[');send(row.key);send(',');send(row.value);send(']');}while(row=getRow()){send(',[');send(row.key);send(',');send(row.value);send(']');}send(']');  }"
@@ -490,5 +490,3 @@ function getWeatherData(page_response){
 }
 // Get the weather data once on start
 getWeatherData();
-
-
