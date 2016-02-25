@@ -1,10 +1,136 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
-    <head>
-        <title>Agriculture Sensor Network: Water Control</title>
-        <link rel="stylesheet" href="mystyle.css">
-    </head>
-    
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Agriculture Sensor Network: Water Control</title>
+    <link href="mystyle.css" rel="stylesheet" type="text/css">
+    <script language="javascript" type="text/javascript" src="./flotGraphing/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="./flotGraphing/jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="./flotGraphingjquery.flot.time.js"></script>
+    <script type="text/javascript">
+                    
+    $(function() { 
+        var newest_clock = 0
+        var options;
+        var markings = [
+            { color: "#ccffcc", yaxis: { from: 440, to: 480 } },
+        ];
+        // configure the options for different views
+        function set_option_recent(){
+            options = {
+                lines:  { show: true },
+                points: { show: true },
+                grid: { markings: markings },
+                xaxis: { 
+                    mode: "time"
+                },
+            };
+        }
+        function set_option_today(){
+            var epoch_time = (new Date).getTime();
+            options = {
+                lines:  { show: true },
+                xaxis: { 
+                    mode: "time",
+                    min: epoch_time-86400000,
+                    max: epoch_time
+                },
+            };
+        }
+
+        // set up the clicks
+        var current_option = "recent"
+        $("#recent").click(function () {
+            current_option = "recent"
+            updateGraphData(current_sensor_data);
+        });
+        $("#today").click(function () {
+            current_option = "today"
+            updateGraphData(current_sensor_data)              
+        });
+            
+        //process get new data
+        var get_data_clicked = false
+        $("#getdata").click(function () {
+            var mygetrequest = new XMLHttpRequest();
+            if(!get_data_clicked){
+                get_data_clicked = true
+                mygetrequest.open("GET", "http://localhost:8080/data_new", true);
+                mygetrequest.send();
+                getStatus();
+            }
+        });
+      
+      
+        // perfrom an initial plot of the data
+        var current_sensor_data = [];
+        $.plot("#placeholder", current_sensor_data, options);
+      
+        // get new sensor data from the database
+        function getSensorData(){
+            var mygetrequest = new XMLHttpRequest();
+            // process json data from the sensor network
+            mygetrequest.onreadystatechange=function(){
+                if (mygetrequest.readyState==4 && mygetrequest.status==200){
+                    var moisture_sensor_json = []
+                    json_me = JSON.parse(mygetrequest.responseText)
+                    for(i = 0; i < json_me.length; i++){
+                        json_me[i].moisture.label = "sensor_"+i
+                        moisture_sensor_json.push(json_me[i].moisture)
+                        moisture_clock = json_me[i].moisture.data[json_me[i].moisture.data.length-1][0]
+                        if(newest_clock < moisture_clock){
+                            newest_clock = moisture_clock
+                            document.getElementById("newest_time").innerHTML = 
+                                    "Latest Value:  " + new Date(newest_clock)
+                        }
+                    }
+                    updateGraphData(moisture_sensor_json)
+                    current_sensor_data = moisture_sensor_json
+                } 
+            }
+            mygetrequest.open("GET", "http://localhost:8080/data_sensor", true);
+            mygetrequest.send();
+        }
+      
+        // update the line graph with new data
+        function updateGraphData(moisture_data){
+            //console.log(moisture_data)
+            if(current_option == "today"){
+                set_option_today();
+            } else {
+                for(i = 0; i < moisture_data.length; i++){
+                    data_len = moisture_data[0].data.length
+                    moisture_data[i].data = moisture_data[i].data.slice(data_len-25,data_len)
+                    //console.log(moisture_data[i].data)
+                }
+                set_option_recent();
+            }
+            $.plot("#placeholder", moisture_data, options);
+        }
+        
+        // get status of the get command
+        function getStatus(){
+            var mygetrequest = new XMLHttpRequest(); 
+            mygetrequest.onreadystatechange=function(){
+                if (mygetrequest.readyState==4 && mygetrequest.status==200){
+                    document.getElementById("getdata_status").innerHTML = mygetrequest.responseText
+                    console.log(mygetrequest.responseText);
+                    if(mygetrequest.responseText.indexOf("waiting for response") > -1){
+                        setTimeout(getStatus, 200);
+                    } else {
+                        get_data_clicked = false;
+                    }
+                } 
+            }     
+            mygetrequest.open("GET", "http://localhost:8080/get_data_status", true);
+            mygetrequest.send();
+        }
+      
+        // run once, then get new sensor data every 10 secs
+        getSensorData()
+        setInterval(getSensorData, 1000);
+    });
+    </script>
+
     <body>
         <!-- Site navigation menu -->
         <ul class="navbar">
@@ -22,6 +148,20 @@
         
         <!-- Main content -->
         <h2>Water Control</h2>
+                
+        <div id="content">
+            <div class="demo-container">
+                <div id="placeholder" class="demo-placeholder" style="float:left; width:675px;"></div>
+                <p id="choices" style="float:right; width:135px;"></p>
+            </div>
+            <center><t id="newest_time"></t></center>
+            <p><button id="recent">Recent Data</button>
+            <button id="today">Today's Data</button></p>
+            <p><button id="getdata">Get New Data</button>
+            <n>. . . . . .</n><m id="getdata_status"></m></p>
+            <p>Water control algorithm</p>
+        </div>
+
         
     </body>
 </html>
