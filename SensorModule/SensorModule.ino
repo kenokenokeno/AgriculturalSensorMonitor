@@ -181,14 +181,23 @@ void getSensorPacket(char *xbee_packet){
   String Moisture = String(soil_moisture);
 
   String Packet = Tag + 
-                    ",@" + sensorModuleID + 
-                    ",C" + Clock +
-                    ",P" + Pressure + 
-                    ",T" + Temp1 +
-                    ",H" + Humidity +
-                    ",T" + Temp2 +
-                    ",L" + Light +
-                    ",M" + Moisture + ",";
+                  ",@" + sensorModuleID + 
+                  ",C" + Clock;
+  if(Pressure != "ovf" & bmp180_pressure > 0.1){
+    Packet = Packet + ",P" + Pressure;
+  }
+  if(Temp1 != "ovf" & bmp180_temp > 0.1){
+    Packet = Packet + ",T" + Temp1;
+  }
+  if(htv21d_humd <= 100){
+    Packet = Packet + ",H" + Humidity;
+  }
+  if(htv21d_temp <= 200){
+    Packet = Packet + ",T" + Temp2;
+  }
+  Packet = Packet + ",L" + Light;
+  Packet = Packet + ",M" + Moisture + ",";
+  
   int crc_value = checkSum(Packet, Packet.length());
   String SendPacket = Packet + char(crc_value) + '\0';
   SendPacket.toCharArray(xbee_packet, SendPacket.length());
