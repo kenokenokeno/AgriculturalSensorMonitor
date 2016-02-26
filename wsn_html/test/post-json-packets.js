@@ -2,13 +2,13 @@ var querystring = require("querystring");
 var http = require("http");
 var sensorData = {
     "dev_id" : 1,
-    "clock" : 1456381873000,
+    "clock" : 1456443980000,
     "pressure" : 1001,
     "temperature" : 28,
     "humidity" : 61,
     "light" : 31,
     "moisture" : 161,
-    "water" : 1
+    "water" : 0
 };
 
 
@@ -16,11 +16,11 @@ var sensorData = {
 function writeData(){
     //update the sensor data
     sensorData.clock    = sensorData.clock+300000
-    /*sensorData.pressure = Math.round((Math.random()*50 + 1000)*100)/100
-    sensorData.temp     = Math.round((Math.random()*5 + 25)*100)/100
+    sensorData.pressure = Math.round((Math.random()*50 + 1000)*100)/100
+    sensorData.temperature= Math.round((Math.random()*5 + 25)*100)/100
     sensorData.humidity = Math.round((Math.random()*10 + 50)*100)/100
     sensorData.light    = Math.round(Math.random()*1000)
-    sensorData.moisture = Math.round(Math.random()*80 + 400)*/
+    sensorData.moisture = Math.round(Math.random()*80 + 400)
     
     // configure the header options
     var options = {
@@ -53,7 +53,7 @@ function writeData(){
     req.write(JSON.stringify(sensorData));
 }
 writeData()
-setInterval(writeData, 30000);
+setInterval(writeData, 1000);
 
 1456376517000
 

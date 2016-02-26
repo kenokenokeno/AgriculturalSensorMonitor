@@ -64,25 +64,25 @@ couchdb_list_view = {
     "language": "javascript",
     "views": {
         "dev_id": {
-           "map": "function(doc) { if(doc.dev_id){ emit(doc._id, doc.dev_id) } }"
+           "map": "function(doc) { if(doc.dev_id != null){ emit(doc._id, doc.dev_id) } }"
        },
        "temp": {
-           "map": "function(doc) { if(doc.temperature){ emit(doc._id, doc.temperature) } }"
+           "map": "function(doc) { if(doc.temperature != null){ emit(doc._id, doc.temperature) } }"
        },
        "pressure": {
-           "map": "function(doc) { if(doc.pressure){ emit(doc._id, doc.pressure) } }"
+           "map": "function(doc) { if(doc.pressure != null){ emit(doc._id, doc.pressure) } }"
        },
        "humidity": {
-           "map": "function(doc) { if(doc.humidity){ emit(doc._id, doc.humidity)} }"
+           "map": "function(doc) { if(doc.humidity != null){ emit(doc._id, doc.humidity)} }"
        },
        "light": {
-           "map": "function(doc) { if(doc.light){ emit(doc._id, doc.light) } }"
+           "map": "function(doc) { if(doc.light != null){ emit(doc._id, doc.light) } }"
        },
        "moisture": {
-           "map": "function(doc) { if(doc.moisture){ emit(doc._id, doc.moisture) } }"
+           "map": "function(doc) { if(doc.moisture != null){ emit(doc._id, doc.moisture) } }"
        },
        "water": {
-           "map": "function(doc) { if(doc.water){ emit(doc._id, doc.water) } }"
+           "map": "function(doc) { if(doc.water != null){ emit(doc._id, doc.water) } }"
        }
     },
     "lists": {
