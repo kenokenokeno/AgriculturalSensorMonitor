@@ -12,23 +12,13 @@
         var newest_clock = 0
         var options;
         var markings = [
-            { color: "#ccffcc", yaxis: { from: 440, to: 480 } },
+            { color: "#b3ffb3", yaxis: { from: 375, to: 1000 } },
         ];
-        // configure the options for different views
-        function set_option_recent(){
-            options = {
-                lines:  { show: true },
-                points: { show: true },
-                grid: { markings: markings },
-                xaxis: { 
-                    mode: "time"
-                },
-            };
-        }
         function set_option_today(){
             var epoch_time = (new Date).getTime();
             options = {
                 lines:  { show: true },
+                grid: { markings: markings },
                 xaxis: { 
                     mode: "time",
                     min: epoch_time-86400000,
@@ -36,17 +26,6 @@
                 },
             };
         }
-
-        // set up the clicks
-        var current_option = "recent"
-        $("#recent").click(function () {
-            current_option = "recent"
-            updateGraphData(current_sensor_data);
-        });
-        $("#today").click(function () {
-            current_option = "today"
-            updateGraphData(current_sensor_data)              
-        });
             
         //process get new data
         var get_data_clicked = false
@@ -60,10 +39,11 @@
             }
         });
       
-      
         // perfrom an initial plot of the data
         var current_sensor_data = [];
-        $.plot("#placeholder", current_sensor_data, options);
+        var water_cntl_json = [];
+        $.plot("#soil-moisture-plot", current_sensor_data,options);
+        $.plot("#water-plot", water_cntl_json, options);
       
         // get new sensor data from the database
         function getSensorData(){
@@ -71,11 +51,15 @@
             // process json data from the sensor network
             mygetrequest.onreadystatechange=function(){
                 if (mygetrequest.readyState==4 && mygetrequest.status==200){
+                    // init the data structure
                     var moisture_sensor_json = []
                     json_me = JSON.parse(mygetrequest.responseText)
+                    // get the soil moisture data
                     for(i = 0; i < json_me.length; i++){
                         json_me[i].moisture.label = "sensor_"+i
                         moisture_sensor_json.push(json_me[i].moisture)
+                        water_cntl_json = []
+                        water_cntl_json.push(json_me[i].water)
                         moisture_clock = json_me[i].moisture.data[json_me[i].moisture.data.length-1][0]
                         if(newest_clock < moisture_clock){
                             newest_clock = moisture_clock
@@ -94,17 +78,9 @@
         // update the line graph with new data
         function updateGraphData(moisture_data){
             //console.log(moisture_data)
-            if(current_option == "today"){
-                set_option_today();
-            } else {
-                for(i = 0; i < moisture_data.length; i++){
-                    data_len = moisture_data[0].data.length
-                    moisture_data[i].data = moisture_data[i].data.slice(data_len-25,data_len)
-                    //console.log(moisture_data[i].data)
-                }
-                set_option_recent();
-            }
-            $.plot("#placeholder", moisture_data, options);
+            set_option_today();
+            $.plot("#soil-moisture-plot", moisture_data,options);
+            $.plot("#water-plot", water_cntl_json, options);
         }
         
         // get status of the get command
@@ -150,13 +126,15 @@
         <h2>Water Control</h2>
                 
         <div id="content">
-            <div class="demo-container">
-                <div id="placeholder" class="demo-placeholder" style="float:left; width:675px;"></div>
+            <div class="water-container">
+                <div id="water-plot" class="demo-placeholder" style="float:left; width:800px;"></div>
+                <p id="choices" style="float:right; width:135px;"></p>
+            </div>
+            <div class="water-container">
+                <div id="soil-moisture-plot" class="demo-placeholder" style="float:left; width:800px;"></div>
                 <p id="choices" style="float:right; width:135px;"></p>
             </div>
             <center><t id="newest_time"></t></center>
-            <p><button id="recent">Recent Data</button>
-            <button id="today">Today's Data</button></p>
             <p><button id="getdata">Get New Data</button>
             <n>. . . . . .</n><m id="getdata_status"></m></p>
             <p>Water control algorithm</p>
