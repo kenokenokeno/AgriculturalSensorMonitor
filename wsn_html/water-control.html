@@ -137,7 +137,20 @@
             <center><t id="newest_time"></t></center>
             <p><button id="getdata">Get New Data</button>
             <n>. . . . . .</n><m id="getdata_status"></m></p>
-            <p>Water control algorithm</p>
+            <p>The Water control algorithm is used to regulate the soil moisture to ensure 
+            it meets a minimum moisture threshold. The moisture threshold is dynamically set 
+            and is based on the inputs from the sensor module and internet weather stations. 
+            The moisture threshold is based on the following rules:</p>
+            <p> - The initial default threshold is set to 350</p>
+            <p> - Check the weather, if its suppose to rain, set threshold to 0</p>
+            <p> - Temp less than 20C: threshold -10</p>
+            <p> - Temp greater than 30C: threshold +10</p>
+            <p> - Humidity less than 20: threshold +15</p>
+            <p> - Humidity greater than 70: threshold -10</p>
+            <p> - Light less than 200: threshold -5</p>
+            <p> - Light greater than 200: threshold +5</p>
+            <p> - Pressure is not used</p>
+            
         </div>
 
         
