@@ -395,7 +395,7 @@ var dumb_water_off_time = 120000
 var last_measured_time = 0
 var water_status_on = false
 // reactive mode soil moisture threshold
-var soil_mois_threshold = 600;
+var soil_mois_threshold = 750;
 // handle the water control for the system
 function checkWaterControl(){
     var d = new Date();
