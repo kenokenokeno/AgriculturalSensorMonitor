@@ -72,14 +72,14 @@ void loop() {
     }
     // process the turn water ON command
     else if(String(xbee_rx_packet).indexOf("TurnOnWater") >=0) {
-      Serial.println("TurnOnWaterACK");
+      //Serial.println("TurnOnWaterACK");
       Serial1.println("TURN ON THE WATER !");
       digitalWrite(WATER_CONTROL_PIN, HIGH);
       WATER_CONTROL_STATE = 1;
     }
     // process the turn water OFF command
     else if(String(xbee_rx_packet).indexOf("TurnOffWater") >=0) {
-      Serial.println("TurnOffWaterACK");
+      //Serial.println("TurnOffWaterACK");
       Serial1.println("TURN OFF THE WATER !");
       digitalWrite(WATER_CONTROL_PIN, LOW);
       WATER_CONTROL_STATE = 0;
