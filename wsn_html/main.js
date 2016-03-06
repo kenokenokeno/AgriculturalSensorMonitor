@@ -22,8 +22,6 @@ var humdityPage     = fs.readFileSync('humidity.html');
 var lightPage       = fs.readFileSync('light.html');
 var pressurePage    = fs.readFileSync('pressure.html');
 var soilMoisturePage= fs.readFileSync('soil-moisture.html');
-var softwarePage    = fs.readFileSync('software-design.html');
-var hardwarePage    = fs.readFileSync('hardware-design.html');
 var myStyleCSS      = fs.readFileSync('mystyle.css');
 var jquery          = fs.readFileSync('./flotGraphing/jquery.js');
 var jqueryFlot      = fs.readFileSync('./flotGraphing/jquery.flot.js');
@@ -130,10 +128,6 @@ function handleRequest(request, response){
             response.end(pressurePage);
         } else if (request.url.indexOf('soil-moisture') != -1) {
             response.end(soilMoisturePage);
-        } else if (request.url.indexOf('software-design') != -1) {
-            response.end(softwarePage);
-        } else if (request.url.indexOf('hardware-design') != -1) {
-            response.end(hardwarePage);
         } else if(request.url.indexOf('example.css') != -1) {
             response.end(myStyleCSS);
         } else if(request.url.indexOf('jquery.js') != -1) {
