@@ -447,8 +447,8 @@ function calcSoilMoisThreshold(){
             (weather_json.weather[0].description.indexOf("mist") > -1) || 
             (weather_json.weather[0].description.indexOf("storm") > -1) || 
             (weather_json.weather[0].description.indexOf("hurricane") > -1)){
-        console.log("Looks like rainny weather, setting to threshold to 0")
-        return 0;   
+        console.log("Looks like rainy weather, do not turn water on, setting to threshold to -1")
+        return -1;   
     }
     // initially set the calc threshold to the soil moisture threshold
     calc_threshold = soil_mois_threshold;
