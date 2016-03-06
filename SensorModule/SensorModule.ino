@@ -40,6 +40,7 @@ void setup() {
   myHumidity.begin();
   // set up the motor control output
   pinMode(WATER_CONTROL_PIN, OUTPUT); 
+  Serial1.println("Sensor Module Starting. . ");
 }
 
 

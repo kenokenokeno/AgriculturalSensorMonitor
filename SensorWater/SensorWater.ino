@@ -31,7 +31,7 @@ void setup() {
   AFMS.begin();
   myMotor->run(FORWARD);
   myMotor->setSpeed(0);
-  Serial1.println("Starting here");
+  Serial1.println("Sensor Water Node Controller Starting. . .");
 }
 
 // ==[ LOOP ]=========================================================
