@@ -93,6 +93,10 @@ var sensor_data_array = [] //stores all of the local sensor data
 var newest_data = [] // stores the newest sensor data
 var data_new_status = "." //status of the get new data command
 
+// Get the weather data once on start, then update every 15mins
+getWeatherData();
+setInterval(getWeatherData, 900000);
+
 // at start get all json data from the database
 getAllDatabases();
 
@@ -169,6 +173,14 @@ function handleRequest(request, response){
             }
             // update the get new data status
             data_new_status = "new data received from the network"
+            
+            // verify the the 
+            if(sensor_data.clock <= sensor_data_array[sensor_data.dev_id-1].newest_time){
+                console.log("ERR: received packet from the past, perform manual Gateway clock sync")
+                return;
+            }
+            sensor_data_array[sensor_data.dev_id-1].newest_time = sensor_data.clock
+            newest_data = sensor_data
             
             // get the database name
             database_name = 'sensor_node_' + sensor_data.dev_id
@@ -277,6 +289,12 @@ function getAllDatabases(){
                             { revs_info: true }, function(err, body) {
                         if (!err){
                             sensor_data_array[this_dev_id-1].moisture.data = body
+                            //get the latest received packet time
+                            //packets with recv time before the clock time of the last index 
+                            //will be dropped
+                            last_index = body.length
+                            last_index_time = body[last_index-1][0]
+                            sensor_data_array[this_dev_id-1].newest_time = last_index_time
                         }
                     });
                     sensor_db.get('_design/sensor_map/_list/index-values/water/', 
@@ -299,9 +317,6 @@ function processJSON(json_data){
         while( typeof sensor_data_array[json_data.dev_id-1] == 'undefined'){
             sensor_data_array.push(JSON.parse(JSON.stringify(sensor_data)));
         }
-        // set the new newest time
-        sensor_data_array[json_data.dev_id-1].newest_time = json_data.clock
-        newest_data = json_data
         // add the data values from the packet to the sensor_data_array
         if('pressure' in json_data){
             sensor_data_array[json_data.dev_id-1].
@@ -434,15 +449,19 @@ function checkWaterControl(){
 
 function calcSoilMoisThreshold(){
     // check if the weather description includes rainny weather
-    if((weather_json.weather[0].description.indexOf("thunderstorm") > -1) || 
-            (weather_json.weather[0].description.indexOf("drizzle") > -1) ||
-            (weather_json.weather[0].description.indexOf("rain") > -1) || 
-            (weather_json.weather[0].description.indexOf("snow") > -1) || 
-            (weather_json.weather[0].description.indexOf("mist") > -1) || 
-            (weather_json.weather[0].description.indexOf("storm") > -1) || 
-            (weather_json.weather[0].description.indexOf("hurricane") > -1)){
-        console.log("Looks like rainy weather, do not turn water on, setting to threshold to -1")
-        return -1;   
+    if(typeof weather_json != 'undefined'){
+        if((weather_json.weather[0].description.indexOf("thunderstorm") > -1) || 
+                (weather_json.weather[0].description.indexOf("drizzle") > -1) ||
+                (weather_json.weather[0].description.indexOf("rain") > -1) || 
+                (weather_json.weather[0].description.indexOf("snow") > -1) || 
+                (weather_json.weather[0].description.indexOf("mist") > -1) || 
+                (weather_json.weather[0].description.indexOf("storm") > -1) || 
+                (weather_json.weather[0].description.indexOf("hurricane") > -1)){
+            console.log("Looks like rainy weather, do not turn water on, setting to threshold to -1")
+            return -1;   
+        }
+    } else {
+        console.log("ERR: no weather data avaliable, check the connection to openweathermap.org")
     }
     // initially set the calc threshold to the soil moisture threshold
     calc_threshold = soil_mois_threshold;
@@ -475,9 +494,10 @@ function calcSoilMoisThreshold(){
 
 
 // Get weather data from the internet
-function getWeatherData(page_response){
+function getWeatherData(){
     var d = new Date();
     var new_time = false
+    console.log("Updating weather data from server")
     if(d.getTime() - weather_time >= 600000){
         weather_time = d.getTime();
         new_time = true
@@ -498,5 +518,3 @@ function getWeatherData(page_response){
         return weather_data;
     }
 }
-// Get the weather data once on start
-getWeatherData();
