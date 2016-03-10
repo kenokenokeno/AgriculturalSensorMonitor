@@ -155,9 +155,15 @@ function handleRequest(request, response){
                  data_new_status = body;
                  return
             }
-            
+
             // parse the json data
             var sensor_data = JSON.parse(body)
+            
+            // check if the data is connected
+            if(typeof sensor_data_array[sensor_data.dev_id-1] == 'undefined'){
+                // the database isn't configured, do not process the packet
+                return;
+            }
             
             // verify the json packet elements
             if (!('dev_id' in sensor_data && 'clock' in sensor_data && 
