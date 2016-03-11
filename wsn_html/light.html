@@ -19,7 +19,9 @@
                 lines:  { show: true },
                 points: { show: true },
                 xaxis: { 
-                    mode: "time"
+                    mode: "time",
+                    min: newest_clock-600000,
+                    max: newest_clock
                 },
             };
         }
@@ -106,11 +108,6 @@
             } else if (current_option == "all"){
                 set_option_all();
             } else {
-                for(i = 0; i < light_data.length; i++){
-                    data_len = light_data[0].data.length
-                    light_data[i].data = light_data[i].data.slice(data_len-10,data_len)
-                    //console.log(light_data[i].data)
-                }
                 set_option_recent();
             }
             $.plot("#placeholder", light_data, options);
