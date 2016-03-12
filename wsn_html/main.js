@@ -153,6 +153,7 @@ function handleRequest(request, response){
             // check if its a status packet
             if (body.indexOf('Gateway') > -1) {
                  data_new_status = body;
+                 console.log("RX: received a status packet: " + data_new_status)
                  return
             }
 
@@ -161,7 +162,7 @@ function handleRequest(request, response){
             
             // check if the data is connected
             if(typeof sensor_data_array[sensor_data.dev_id-1] == 'undefined'){
-                // the database isn't configured, do not process the packet
+                console.log("ERR: the database isn't configured, do not process the packet")
                 return;
             }
             
@@ -455,7 +456,7 @@ function checkWaterControl(){
 
 function calcSoilMoisThreshold(){
     // check if the weather description includes rainny weather
-    if(typeof weather_json != 'undefined'){
+    if(typeof weather_json != 'undefined' && typeof weather_json.weather != 'undefined'){
         if((weather_json.weather[0].description.indexOf("thunderstorm") > -1) || 
                 (weather_json.weather[0].description.indexOf("drizzle") > -1) ||
                 (weather_json.weather[0].description.indexOf("rain") > -1) || 
@@ -507,7 +508,7 @@ function getWeatherData(){
     if(d.getTime() - weather_time >= 600000){
         weather_time = d.getTime();
         new_time = true
-        http.get("http://api.openweathermap.org/data/2.5/weather?id=5392171&appid=44db6a862fba0b067b1930da0d769e98", function(res) {
+        http.get("http://api.openweathermap.org/data/2.5/weather?id=5392171&appid=b8ec00ce19f295a8d2a07573fbc89eaa", function(res) {
             //console.log("statusCode: ", res.statusCode);
             //console.log("headers: ", res.headers);
             res.on('data', function(data) {
