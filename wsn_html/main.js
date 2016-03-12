@@ -158,47 +158,53 @@ function handleRequest(request, response){
             }
 
             // parse the json data
-            var sensor_data = JSON.parse(body)
+            var sensor_data_json = JSON.parse(body)
             
             // check if the data is connected
-            if(typeof sensor_data_array[sensor_data.dev_id-1] == 'undefined'){
+            /*if(typeof sensor_data_array[sensor_data.dev_id-1] == 'undefined'){
                 console.log("ERR: the database isn't configured, do not process the packet")
                 return;
-            }
+            }*/
+            
             
             // verify the json packet elements
-            if (!('dev_id' in sensor_data && 'clock' in sensor_data && 
+            if (!('dev_id' in sensor_data_json && 'clock' in sensor_data_json && 
                   request.url == '/upload')){
                 console.log("ERR: invalid or missing json packet elements, ignoring packet")
                 return;
             }
             // verify the json packet data
-            if(sensor_data.dev_id < 0 || sensor_data.dev_id > 999 || 
-                    sensor_data.clock < 1451606400000 || sensor_data.clock > 1893456000000){
+            if(sensor_data_json.dev_id < 0 || sensor_data_json.dev_id > 999 || 
+                    sensor_data_json.clock < 1451606400000 || sensor_data_json.clock > 1893456000000){
                 console.log("ERR: invalid data values, ignoring packet")
                 return;
             }
             // update the get new data status
             data_new_status = "new data received from the network"
             
-            // verify the the 
-            if(sensor_data.clock <= sensor_data_array[sensor_data.dev_id-1].newest_time){
+            // check if the sensor array index doesn't exist, create it.
+            while( typeof sensor_data_array[sensor_data_json.dev_id-1] == 'undefined'){
+                sensor_data_array.push(JSON.parse(JSON.stringify(sensor_data)));
+            }
+            
+            // verify the clock time is correct
+            if(sensor_data.clock <= sensor_data_array[sensor_data_json.dev_id-1].newest_time){
                 console.log("ERR: received packet from the past, perform manual Gateway clock sync")
                 return;
             }
-            sensor_data_array[sensor_data.dev_id-1].newest_time = sensor_data.clock
-            newest_data = sensor_data
+            sensor_data_array[sensor_data_json.dev_id-1].newest_time = sensor_data_json.clock
+            newest_data = sensor_data_json
             
             // get the database name
-            database_name = 'sensor_node_' + sensor_data.dev_id
+            database_name = 'sensor_node_' + sensor_data_json.dev_id
             
             // check if the database exists
             nano.db.get(database_name, function(err, body) {
                 if(!err){
                     // push the file to the database
                     var node_db = nano.use(database_name);
-                    node_db.insert(sensor_data, 
-                            sensor_data.clock.toString(), function(err, body, header) {
+                    node_db.insert(sensor_data_json, 
+                            sensor_data_json.clock.toString(), function(err, body, header) {
                         if (err) {
                             console.log('[' + database_name + ']: ', err.message);
                             return;
@@ -206,7 +212,7 @@ function handleRequest(request, response){
                         console.log(body);
                     });
                     // update the local data
-                    processJSON(sensor_data)
+                    processJSON(sensor_data_json)
                 } 
                 else if (err.message == 'no_db_file') {
                     //if the database does not exist, create it
@@ -320,10 +326,6 @@ function getAllDatabases(){
 function processJSON(json_data){
     // verify that the json data is valid
     if('dev_id' in json_data && 'clock' in json_data){
-        // check if the sensor array index doesn't exist, create it.
-        while( typeof sensor_data_array[json_data.dev_id-1] == 'undefined'){
-            sensor_data_array.push(JSON.parse(JSON.stringify(sensor_data)));
-        }
         // add the data values from the packet to the sensor_data_array
         if('pressure' in json_data){
             sensor_data_array[json_data.dev_id-1].
