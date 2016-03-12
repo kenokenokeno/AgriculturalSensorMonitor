@@ -84,6 +84,13 @@
                     json_me = JSON.parse(mygetrequest.responseText)
                     for(i = 0; i < json_me.length; i++){
                         json_me[i].humidity.label = "sensor_"+i
+                        //check is the sensor data is valid (values < -1) are not valid
+                        humidity_data_len = json_me[i].humidity.data.length;
+                        if(json_me[i].humidity.data[0][1] == -1 && 
+                                json_me[i].humidity.data[humidity_data_len-1][1] == -1 &&
+                                json_me[i].humidity.data[Math.round(humidity_data_len/2)][1] == -1){
+                            continue;
+                        }
                         humidity_sensor_json.push(json_me[i].humidity)
                         humidity_clock = json_me[i].humidity.data[json_me[i].humidity.data.length-1][0]
                         if(newest_clock < humidity_clock){

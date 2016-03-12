@@ -84,6 +84,13 @@
                     json_me = JSON.parse(mygetrequest.responseText)
                     for(i = 0; i < json_me.length; i++){
                         json_me[i].pressure.label = "sensor_"+i
+                        //check is the sensor data is valid (values < -1) are not valid
+                        pressure_data_len = json_me[i].pressure.data.length;
+                        if(json_me[i].pressure.data[0][1] == -1 && 
+                                json_me[i].pressure.data[pressure_data_len-1][1] == -1 &&
+                                json_me[i].pressure.data[Math.round(pressure_data_len/2)][1] == -1){
+                            continue;
+                        }
                         pressure_sensor_json.push(json_me[i].pressure)
                         pressure_clock = json_me[i].pressure.data[json_me[i].pressure.data.length-1][0]
                         if(newest_clock < pressure_clock){

@@ -43,7 +43,6 @@ void setup() {
   Serial1.println("Sensor Module Starting. . ");
 }
 
-
 // init variables for LOOP
 double last_sent_time = millis();
 bool cmd_received = 0;

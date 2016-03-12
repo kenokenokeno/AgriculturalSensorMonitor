@@ -89,6 +89,14 @@
                     json_me = JSON.parse(mygetrequest.responseText)
                     for(i = 0; i < json_me.length; i++){
                         json_me[i].temp.label = "sensor_"+i
+                        //check is the sensor data is valid (values < -1) are not valid
+                        //check the first, last, and middle values
+                        temp_data_len = json_me[i].temp.data.length;
+                        if(json_me[i].temp.data[0][1] == -1 && 
+                                json_me[i].temp.data[temp_data_len-1][1] == -1 &&
+                                json_me[i].temp.data[Math.round(temp_data_len/2)][1] == -1){
+                            continue;
+                        }
                         temp_sensor_json.push(json_me[i].temp)
                         temp_clock = json_me[i].temp.data[json_me[i].temp.data.length-1][0]
                         if(newest_clock < temp_clock){
