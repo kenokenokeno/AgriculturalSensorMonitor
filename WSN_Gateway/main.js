@@ -261,18 +261,31 @@ function handleRequest(request, response){
             repeatSerialWrite("TurnOffWater");
         }
     }
+    //variables for get data
+    var got_data_1 = false;
+    var got_data_2 = false;
     function repeatSerialWrite(write_string){
         // return if the correct response was received
         if(data_received && (data_received.indexOf(write_string) > -1)){
             return;   
-        } else if(data_received && (data_received.indexOf("KENO") > -1)){
-            return;        
+        } else if(data_received && (data_received.indexOf("KENO,@1") > -1)){
+            got_data_1 = true;        
+        } else if(data_received && (data_received.indexOf("KENO,@2") > -1)){
+            got_data_2 = true;        
         }
+        if(got_data_1 && got_data_2){
+            got_data_1 = false;
+            got_data_2 = false;
+            return
+        }
+        
         // return if the timeout value is reached
         if((new Date).getTime() - start_timeout >= 5000){
             //TODO: Add a gateway to wsm timeout message
             console.log("Gateway Error: no response from sensor network")
             sendHttp("Gateway Error: no response from sensor network")
+            got_data_1 = false;
+            got_data_2 = false;
             return;
         }
         // write the string to the serial port
