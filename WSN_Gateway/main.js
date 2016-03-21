@@ -182,8 +182,8 @@ function sendHttp(data){
     // set up the http packet options
     var options = {
         //this address should be the address the webserver is running on
-        hostname: '192.168.1.167', //home network
-        //hostname: '192.168.43.110', //galaxy network
+        //hostname: '192.168.1.167', //home network
+        hostname: '192.168.43.110', //galaxy network
         port: 8080,
         path: '/upload',
         method: 'POST',

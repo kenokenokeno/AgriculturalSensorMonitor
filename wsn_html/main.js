@@ -5,7 +5,8 @@ var http = require('http');
 
 // network configurations
 const PORT=8080;
-var edison_hostname = '192.168.1.145'
+//var edison_hostname = '192.168.1.145' //home network
+var edison_hostname = '192.168.43.225'   //galaxy network
 
 // weather data and time
 var weather_time = 0
@@ -90,7 +91,7 @@ couchdb_list_view = {
 
 // sensor data array
 var sensor_data_array = [] //stores all of the local sensor data
-var newest_data = [] // stores the newest sensor data
+var newest_data = [5]       // stores the newest sensor data
 var data_new_status = "." //status of the get new data command
 
 // Get the weather data once on start, then update every 15mins
@@ -166,7 +167,6 @@ function handleRequest(request, response){
                 return;
             }*/
             
-            
             // verify the json packet elements
             if (!('dev_id' in sensor_data_json && 'clock' in sensor_data_json && 
                   request.url == '/upload')){
@@ -193,7 +193,7 @@ function handleRequest(request, response){
                 return;
             }
             sensor_data_array[sensor_data_json.dev_id-1].newest_time = sensor_data_json.clock
-            newest_data = sensor_data_json
+            newest_data[sensor_data_json.dev_id-1] = sensor_data_json
             
             // get the database name
             database_name = 'sensor_node_' + sensor_data_json.dev_id
@@ -413,7 +413,7 @@ var dumb_water_off_time = 120000
 var last_measured_time = 0
 var water_status_on = false
 // reactive mode soil moisture threshold
-var soil_mois_threshold = 750;
+var soil_mois_threshold = 820;
 // handle the water control for the system
 function checkWaterControl(){
     var d = new Date();
@@ -438,7 +438,9 @@ function checkWaterControl(){
             break;
         case ctrl_mode_reactive:
             console.log("Water Control Mode: Reactive")
-            if(newest_data && (newest_data.moisture <= soil_mois_threshold)){
+            if(newest_data[0] && (newest_data[0].moisture <= soil_mois_threshold)){
+                turnOnWater()
+            } else if(newest_data[1] && (newest_data[1].moisture <= soil_mois_threshold)){
                 turnOnWater()
             } else {
                 turnOffWater()
@@ -447,7 +449,9 @@ function checkWaterControl(){
         case ctrl_mode_proactive:
             console.log("Water Control Mode: Proactive")
             calc_threshold = calcSoilMoisThreshold()
-            if(newest_data && (newest_data.moisture <= calc_threshold)){
+            if(newest_data[0] && (newest_data[0].moisture <= calc_threshold)){
+                turnOnWater()
+            } else if(newest_data[1] && (newest_data[1].moisture <= calc_threshold)){
                 turnOnWater()
             } else {
                 turnOffWater()
@@ -458,7 +462,7 @@ function checkWaterControl(){
 
 function calcSoilMoisThreshold(){
     // check if the weather description includes rainny weather
-    if(typeof weather_json != 'undefined' && typeof weather_json.weather != 'undefined'){
+    /*if(typeof weather_json != 'undefined' && typeof weather_json.weather != 'undefined'){
         if((weather_json.weather[0].description.indexOf("thunderstorm") > -1) || 
                 (weather_json.weather[0].description.indexOf("drizzle") > -1) ||
                 (weather_json.weather[0].description.indexOf("rain") > -1) || 
@@ -471,7 +475,7 @@ function calcSoilMoisThreshold(){
         }
     } else {
         console.log("ERR: no weather data avaliable, check the connection to openweathermap.org")
-    }
+    }*/
     // initially set the calc threshold to the soil moisture threshold
     calc_threshold = soil_mois_threshold;
     //console.log("threshold; " + calc_threshold);
