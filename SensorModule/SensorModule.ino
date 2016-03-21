@@ -66,7 +66,7 @@ void loop() {
     Serial1.print("\nRX DATA: " );
     Serial1.println(xbee_rx_packet);
     // process the get new data command
-    if(String(xbee_rx_packet).indexOf("GetNewData") >=0) {
+    if(String(xbee_rx_packet).indexOf("GetNewData1") >=0) {
       cmd_received = 1;
       Serial1.println("GET NEW DATA COMMAND !");
     }

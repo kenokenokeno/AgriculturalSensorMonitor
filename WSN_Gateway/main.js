@@ -221,8 +221,6 @@ server.listen(8080, function(){
 });
 // function that handles requests and sends responses
 function handleRequest(request, response){
-    var start_timeout = (new Date).getTime();
-    var repeat_timeout = 0
     var headers = request.headers;
     var method = request.method;
     var url = request.url;
@@ -250,42 +248,35 @@ function handleRequest(request, response){
         if(url == get_data){
             console.log("  Command Received: forwarding to network")
             // this writes the command to all sensor nodes
-            repeatSerialWrite("GetNewData");
+            repeatSerialWrite("GetNewData1", (new Date).getTime(), 0);
+            repeatSerialWrite("GetNewData2", (new Date).getTime(), 0);
         } else if(url == turn_on_water){
             console.log("  TurnOnWater Command Received, forwarding to network")
             // this writes the command to all sensor nodes
-            repeatSerialWrite("TurnOnWater");
+            repeatSerialWrite("TurnOnWater", (new Date).getTime(), 0);
         } else if(url == turn_off_water){
             console.log("  TurnOffWater Command Received, forwarding to network")
             // this writes the command to all sensor nodes
-            repeatSerialWrite("TurnOffWater");
+            repeatSerialWrite("TurnOffWater", (new Date).getTime(), 0);
         }
     }
+    
     //variables for get data
-    var got_data_1 = false;
-    var got_data_2 = false;
-    function repeatSerialWrite(write_string){
+    function repeatSerialWrite(write_string, start_timeout, repeat_timeout){
         // return if the correct response was received
-        if(data_received && (data_received.indexOf(write_string) > -1)){
-            return;   
-        } else if(data_received && (data_received.indexOf("KENO,@1") > -1)){
-            got_data_1 = true;        
-        } else if(data_received && (data_received.indexOf("KENO,@2") > -1)){
-            got_data_2 = true;        
-        }
-        if(got_data_1 && got_data_2){
-            got_data_1 = false;
-            got_data_2 = false;
-            return
-        }
+        dev_id = write_string[10]
         
+        if(data_received.indexOf(write_string) > -1){
+            return;   
+        } else if(data_received.indexOf("KENO") > -1 && 
+                dev_id == data_received[6]){
+            return;  
+        } 
         // return if the timeout value is reached
-        if((new Date).getTime() - start_timeout >= 5000){
+        if((new Date).getTime() - start_timeout >= 2000){
             //TODO: Add a gateway to wsm timeout message
             console.log("Gateway Error: no response from sensor network")
             sendHttp("Gateway Error: no response from sensor network")
-            got_data_1 = false;
-            got_data_2 = false;
             return;
         }
         // write the string to the serial port
@@ -295,7 +286,7 @@ function handleRequest(request, response){
         }
         //console.log("write2serial: " + write_string);
         // repeat this function after a timeout
-        setTimeout(repeatSerialWrite, 10, write_string);
+        setTimeout(repeatSerialWrite, 50, write_string, start_timeout, repeat_timeout);
     }
 }
 
