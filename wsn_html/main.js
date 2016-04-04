@@ -413,7 +413,7 @@ var dumb_water_off_time = 120000
 var last_measured_time = 0
 var water_status_on = false
 // reactive mode soil moisture threshold
-var soil_mois_threshold = 820;
+var soil_mois_threshold = 805;
 // handle the water control for the system
 function checkWaterControl(){
     var d = new Date();
@@ -475,33 +475,37 @@ function calcSoilMoisThreshold(){
         }
     } else {
         console.log("ERR: no weather data avaliable, check the connection to openweathermap.org")
+    }//*/
+    // check if the temperature is too cold or too hot
+    /*if(newest_data.temp < 2){
+        console.log("Its too cold to water, setting to threshold to -1")
+        return -1; 
+    }
+    if(newest_data.temp > 35 && is_day_light)){
+        console.log("Its too hot to water, wait till night, setting to threshold to -1")
+        return -1;  
     }*/
     // initially set the calc threshold to the soil moisture threshold
     calc_threshold = soil_mois_threshold;
-    //console.log("threshold; " + calc_threshold);
     // update the threshold for temperature
-    if(newest_data.temp < 20){
+    if(newest_data.temp < 15){
         calc_threshold -= 10;
-    } else if (newest_data.temp > 35){
+    } else if (newest_data.temp > 30){
         calc_threshold += 10;
     }
-    //console.log("threshold; " + calc_threshold);
     // update the threshold for humidiy
     if(newest_data.humidiy < 20){
         calc_threshold += 10;
-    } else if (newest_data.humidiy > 60){
-        calc_threshold -= 5;
     } else if (newest_data.humidiy > 85){
         calc_threshold -= 10;
     }
-    //console.log("threshold; " + calc_threshold);
     // update the threshold for light
     if(newest_data.light < 200){
         calc_threshold -= 5;
     } else if (newest_data.light > 600){
         calc_threshold += 5;
     }
-    //console.log("threshold; " + calc_threshold);
+    // return the calculated threshold
     return calc_threshold;
 }
 
